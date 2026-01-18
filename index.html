@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gourav Tailor - Software Engineer Portfolio</title>
+    <title>Gourav Tailor - Software Engineer</title>
     <style>
         * {
             margin: 0;
@@ -11,29 +11,61 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #00ff88;
+            --accent-dim: #00cc6a;
+            --border: #222222;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Display', Roboto, sans-serif;
-            background: #fafaf9;
-            color: #1f1f1f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
             overflow-x: hidden;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.15s ease;
+        }
+
+        .cursor-outline {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.2s ease;
         }
 
         nav {
             position: fixed;
             top: 0;
             width: 100%;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(10, 10, 10, 0.8);
             backdrop-filter: blur(20px);
             z-index: 1000;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border);
         }
 
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 40px;
+            padding: 0 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -41,244 +73,209 @@
 
         .logo {
             font-size: 1.3em;
-            font-weight: 600;
-            color: #cc5834;
+            font-weight: 700;
+            color: var(--accent);
             letter-spacing: -0.5px;
+            cursor: pointer;
         }
 
         .nav-links {
             display: flex;
-            gap: 40px;
+            gap: 48px;
         }
 
         .nav-links a {
-            color: #525252;
+            color: var(--text-secondary);
             text-decoration: none;
             transition: color 0.3s ease;
             font-weight: 500;
             font-size: 0.95em;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
         }
 
         .nav-links a:hover {
-            color: #cc5834;
+            color: var(--accent);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 40px;
+            padding: 0 60px;
         }
 
-        header {
-            min-height: 90vh;
+        .hero {
+            min-height: 100vh;
             display: flex;
             align-items: center;
-            padding: 140px 0 80px;
             position: relative;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-            width: 100%;
+            padding-top: 100px;
         }
 
         .hero-content {
+            max-width: 900px;
             animation: fadeInUp 1s ease-out;
         }
 
-        .greeting {
-            font-size: 1em;
-            color: #cc5834;
-            margin-bottom: 16px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
+        .hero-tag {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            color: var(--accent);
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 32px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         h1 {
-            font-size: 4.5em;
-            font-weight: 700;
+            font-size: 5em;
+            font-weight: 800;
             margin-bottom: 24px;
-            color: #1f1f1f;
-            letter-spacing: -2px;
             line-height: 1.1;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .title {
+        .hero-subtitle {
             font-size: 1.8em;
-            color: #525252;
-            margin-bottom: 24px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
             font-weight: 400;
         }
 
-        .tagline {
+        .hero-description {
             font-size: 1.15em;
-            color: #737373;
-            max-width: 600px;
-            margin-bottom: 40px;
-            line-height: 1.7;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin-bottom: 48px;
+            line-height: 1.8;
         }
 
-        .hero-buttons {
+        .btn-group {
             display: flex;
-            gap: 16px;
+            gap: 20px;
             flex-wrap: wrap;
         }
 
         .btn {
-            padding: 14px 32px;
+            padding: 16px 40px;
             border-radius: 8px;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.3s ease;
-            font-size: 0.95em;
+            font-size: 1em;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-primary {
-            background: #cc5834;
-            color: #fff;
-            border: none;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: 2px solid var(--accent);
         }
 
         .btn-primary:hover {
-            background: #b84d2e;
+            background: var(--accent-dim);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(204, 88, 52, 0.25);
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.3);
         }
 
         .btn-secondary {
-            background: #fff;
-            color: #1f1f1f;
-            border: 1px solid #e5e5e5;
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
         }
 
         .btn-secondary:hover {
-            border-color: #cc5834;
+            background: rgba(0, 255, 136, 0.1);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        }
-
-        .code-showcase {
-            animation: fadeInUp 1s ease-out 0.3s both;
-        }
-
-        .terminal {
-            width: 100%;
-            background: #1e1e1e;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #e5e5e5;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
-        }
-
-        .terminal-header {
-            background: #f5f5f5;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid #e5e5e5;
-        }
-
-        .terminal-buttons {
-            display: flex;
-            gap: 8px;
-            margin-right: 16px;
-        }
-
-        .terminal-btn {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .terminal-btn.close {
-            background: #ff5f57;
-        }
-
-        .terminal-btn.minimize {
-            background: #febc2e;
-        }
-
-        .terminal-btn.maximize {
-            background: #28c840;
-        }
-
-        .terminal-title {
-            color: #737373;
-            font-size: 0.85em;
-            font-family: 'SF Mono', 'Monaco', monospace;
-            font-weight: 500;
-        }
-
-        .terminal-body {
-            padding: 32px 24px;
-            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-            font-size: 0.9em;
-            line-height: 1.8;
-            color: #d4d4d4;
-            background: #1e1e1e;
-        }
-
-        .code-line {
-            display: flex;
-            padding: 2px 0;
-        }
-
-        .code-content {
-            flex: 1;
-        }
-
-        .keyword {
-            color: #ff8b7b;
-        }
-
-        .variable {
-            color: #82d7ff;
-        }
-
-        .function {
-            color: #ffdd86;
-        }
-
-        .comment {
-            color: #6a9955;
-        }
-
-        .typing-cursor .code-content::after {
-            content: '▋';
-            animation: blink 1s infinite;
-            color: #cc5834;
-            margin-left: 2px;
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
         }
 
         .section {
             padding: 120px 0;
+            position: relative;
         }
 
-        .section-white {
-            background: #fff;
+        .section-header {
+            margin-bottom: 80px;
+        }
+
+        .section-tag {
+            color: var(--accent);
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
         }
 
         .section-title {
-            font-size: 2.8em;
+            font-size: 3.5em;
             font-weight: 700;
-            margin-bottom: 20px;
-            color: #1f1f1f;
+            margin-bottom: 24px;
             letter-spacing: -1px;
         }
 
-        .section-subtitle {
+        .section-description {
             font-size: 1.2em;
-            color: #737373;
-            margin-bottom: 60px;
+            color: var(--text-secondary);
             max-width: 700px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 3.5em;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1em;
         }
 
         .projects-grid {
@@ -288,68 +285,85 @@
         }
 
         .project-card {
-            background: #fff;
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
             padding: 40px;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .project-card:hover::before {
+            transform: scaleX(1);
         }
 
         .project-card:hover {
+            border-color: var(--accent);
             transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
-            border-color: #cc5834;
+            box-shadow: 0 20px 60px rgba(0, 255, 136, 0.1);
         }
 
         .project-icon {
-            font-size: 2.5em;
+            font-size: 3em;
             margin-bottom: 24px;
         }
 
         .project-company {
             font-size: 0.85em;
-            color: #cc5834;
+            color: var(--accent);
             font-weight: 600;
             margin-bottom: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
         .project-card h3 {
-            font-size: 1.6em;
+            font-size: 1.8em;
             margin-bottom: 16px;
-            color: #1f1f1f;
-            font-weight: 600;
+            color: var(--text-primary);
+            font-weight: 700;
         }
 
         .project-card p {
-            color: #525252;
+            color: var(--text-secondary);
             margin-bottom: 24px;
-            line-height: 1.7;
+            line-height: 1.8;
         }
 
-        .tech-tags {
+        .tech-stack {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
             margin-top: 24px;
         }
 
-        .tech-tag {
-            background: #f5f5f5;
-            color: #525252;
+        .tech-badge {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--accent);
             padding: 6px 14px;
             border-radius: 6px;
             font-size: 0.85em;
             font-weight: 500;
-            border: 1px solid #e5e5e5;
+            border: 1px solid rgba(0, 255, 136, 0.3);
             transition: all 0.3s ease;
         }
 
-        .tech-tag:hover {
-            background: #fff;
-            border-color: #cc5834;
-            color: #cc5834;
+        .tech-badge:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: scale(1.05);
         }
 
         .skills-grid {
@@ -359,132 +373,184 @@
         }
 
         .skill-category {
-            background: #fff;
-            padding: 32px;
-            border-radius: 12px;
-            border: 1px solid #e5e5e5;
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .skill-category:hover {
+            border-color: var(--accent);
         }
 
         .skill-category h3 {
-            font-size: 1.3em;
-            margin-bottom: 20px;
-            color: #1f1f1f;
-            font-weight: 600;
+            font-size: 1.4em;
+            margin-bottom: 24px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .skill-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .skill-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .skill-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .skill-item {
-            background: #f5f5f5;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.9em;
-            color: #525252;
-            border: 1px solid #e5e5e5;
-            transition: all 0.3s ease;
-            font-weight: 500;
+        .skill-item img {
+            width: 20px;
+            height: 20px;
         }
 
         .skill-item:hover {
-            background: #fff;
-            border-color: #cc5834;
-            color: #cc5834;
+            background: rgba(0, 255, 136, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 32px;
+        .terminal-section {
             margin: 80px 0;
         }
 
-        .stat-card {
-            text-align: center;
-            padding: 32px;
-            background: #fff;
-            border: 1px solid #e5e5e5;
+        .terminal {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1e1e1e;
             border-radius: 12px;
-            transition: all 0.3s ease;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+        .terminal-header {
+            background: #2d2d2d;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .stat-number {
-            font-size: 3.5em;
-            font-weight: 700;
-            color: #cc5834;
-            letter-spacing: -1px;
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
         }
 
-        .stat-label {
-            color: #737373;
-            margin-top: 8px;
+        .dot-red { background: #ff5f57; }
+        .dot-yellow { background: #febc2e; }
+        .dot-green { background: #28c840; }
+
+        .terminal-title {
+            color: #888;
+            font-size: 0.85em;
+            margin-left: 12px;
+            font-family: 'Monaco', monospace;
+        }
+
+        .terminal-body {
+            padding: 32px 24px;
+            font-family: 'Monaco', 'Courier New', monospace;
             font-size: 0.95em;
+            line-height: 1.8;
+            color: #d4d4d4;
+        }
+
+        .code-line {
+            padding: 2px 0;
+        }
+
+        .keyword { color: #ff8b7b; }
+        .variable { color: #82d7ff; }
+        .function { color: #ffdd86; }
+        .comment { color: #6a9955; }
+
+        .typing-cursor::after {
+            content: '▋';
+            animation: blink 1s infinite;
+            color: var(--accent);
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
 
         footer {
+            padding: 80px 0;
+            border-top: 1px solid var(--border);
             text-align: center;
-            padding: 80px 40px;
-            border-top: 1px solid #e5e5e5;
-            background: #fff;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .footer-links {
             display: flex;
             justify-content: center;
-            gap: 32px;
-            margin-bottom: 24px;
+            gap: 40px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
         }
 
         .footer-links a {
-            color: #525252;
+            color: var(--text-secondary);
             text-decoration: none;
-            font-size: 1em;
+            font-size: 1.1em;
             transition: color 0.3s ease;
-            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .footer-links a:hover {
-            color: #cc5834;
+            color: var(--accent);
         }
 
-        .decorative-gradient {
-            position: fixed;
-            width: 800px;
-            height: 800px;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.15;
-            z-index: -1;
-            pointer-events: none;
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.95em;
         }
 
-        .gradient-1 {
-            top: -300px;
-            right: -200px;
-            background: linear-gradient(135deg, #cc5834, #ff9472);
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
         }
 
-        .gradient-2 {
-            bottom: -400px;
-            left: -300px;
-            background: linear-gradient(135deg, #ff9472, #cc5834);
+        .scroll-indicator::before {
+            content: '↓';
+            font-size: 2em;
+            color: var(--accent);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
         }
 
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px);
             }
             to {
                 opacity: 1;
@@ -492,37 +558,45 @@
             }
         }
 
-        @media (max-width: 1024px) {
-            .hero-grid {
-                grid-template-columns: 1fr;
-                gap: 60px;
-            }
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease;
+        }
 
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 1024px) {
             h1 { font-size: 3.5em; }
-            .section-title { font-size: 2.2em; }
+            .section-title { font-size: 2.5em; }
+            .container { padding: 0 40px; }
         }
 
         @media (max-width: 768px) {
             h1 { font-size: 2.5em; }
-            .title { font-size: 1.4em; }
-            .section-title { font-size: 1.8em; }
+            .hero-subtitle { font-size: 1.4em; }
+            .section-title { font-size: 2em; }
             .projects-grid { grid-template-columns: 1fr; }
             .nav-links { display: none; }
             .container { padding: 0 20px; }
             .nav-container { padding: 0 20px; }
-            .hero-grid { gap: 40px; }
+            .cursor-dot, .cursor-outline { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="decorative-gradient gradient-1"></div>
-    <div class="decorative-gradient gradient-2"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-outline" id="cursorOutline"></div>
 
     <nav>
         <div class="nav-container">
-            <div class="logo">Gourav Tailor</div>
+            <div class="logo">GT</div>
             <div class="nav-links">
-                <a href="#projects">Work</a>
+                <a href="#about">About</a>
+                <a href="#work">Work</a>
                 <a href="#skills">Skills</a>
                 <a href="#contact">Contact</a>
             </div>
@@ -530,192 +604,259 @@
     </nav>
 
     <div class="container">
-        <header>
-            <div class="hero-grid">
-                <div class="hero-content">
-                    <div class="greeting">SOFTWARE ENGINEER</div>
-                    <h1>Building scalable systems that matter</h1>
-                    <p class="tagline">Specializing in AI-native applications, cloud infrastructure, and backend architecture. 2+ years crafting solutions that serve thousands.</p>
-                    <div class="hero-buttons">
-                        <a href="https://github.com/Gourav-Tailor" class="btn btn-primary">View GitHub</a>
-                        <a href="https://www.linkedin.com/in/gourav-tailor-2461b117a/" class="btn btn-secondary">LinkedIn</a>
-                        <a href="mailto:gourav.tailor.ai@gmail.com" class="btn btn-secondary">Get in Touch</a>
-                    </div>
-                </div>
-
-                <div class="code-showcase">
-                    <div class="terminal">
-                        <div class="terminal-header">
-                            <div class="terminal-buttons">
-                                <span class="terminal-btn close"></span>
-                                <span class="terminal-btn minimize"></span>
-                                <span class="terminal-btn maximize"></span>
-                            </div>
-                            <div class="terminal-title">developer_mindset.py</div>
-                        </div>
-                        <div class="terminal-body">
-                            <div class="code-line">
-                                <span class="code-content"><span class="comment"># Think harder...</span></span>
-                            </div>
-                            <div class="code-line">
-                                <span class="code-content"><span class="keyword">while</span>(<span class="variable">curious</span>):</span>
-                            </div>
-                            <div class="code-line">
-                                <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">question_everything</span>()</span>
-                            </div>
-                            <div class="code-line">
-                                <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">dig_deeper</span>()</span>
-                            </div>
-                            <div class="code-line">
-                                <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">connect_dots</span>(<span class="variable">unexpected</span>)</span>
-                            </div>
-                            <div class="code-line">
-                                <span class="code-content"></span>
-                            </div>
-                            <div class="code-line">
-                                <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (<span class="variable">stuck</span>):</span>
-                            </div>
-                            <div class="code-line typing-cursor">
-                                <span class="code-content">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">keep_thinking</span>()</span>
-                            </div>
-                        </div>
-                    </div>
+        <section class="hero" id="about">
+            <div class="hero-content">
+                <div class="hero-tag">Software Engineer</div>
+                <h1>Gourav Tailor</h1>
+                <div class="hero-subtitle">Building AI-Native Systems</div>
+                <p class="hero-description">
+                    Specialized in backend architecture, cloud infrastructure, and AI integration. 
+                    2+ years crafting scalable solutions that process 55K+ resumes, serve 60+ clients, 
+                    and reduce processing time by 60%.
+                </p>
+                <div class="btn-group">
+                    <a href="https://github.com/Gourav-Tailor" class="btn btn-primary">
+                        <span>View GitHub</span>
+                        <span>→</span>
+                    </a>
+                    <a href="mailto:gourav.tailor.ai@gmail.com" class="btn btn-secondary">Get in Touch</a>
                 </div>
             </div>
-        </header>
+            <div class="scroll-indicator"></div>
+        </section>
 
-        <div class="stats">
-            <div class="stat-card">
+        <div class="stats-grid reveal">
+            <div class="stat-item">
                 <div class="stat-number">2+</div>
                 <div class="stat-label">Years Experience</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">500+</div>
-                <div class="stat-label">Users Served</div>
+            <div class="stat-item">
+                <div class="stat-number">55K</div>
+                <div class="stat-label">Resumes Processed</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">300+</div>
-                <div class="stat-label">Students Trained</div>
+            <div class="stat-item">
+                <div class="stat-number">60+</div>
+                <div class="stat-label">Clients Served</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">30%</div>
-                <div class="stat-label">Performance Boost</div>
+            <div class="stat-item">
+                <div class="stat-number">60%</div>
+                <div class="stat-label">Time Reduced</div>
             </div>
         </div>
 
-        <section class="section" id="projects">
-            <h2 class="section-title">Featured Work</h2>
-            <p class="section-subtitle">A selection of projects that showcase my expertise in building production-grade systems.</p>
+        <div class="terminal-section reveal">
+            <div class="terminal">
+                <div class="terminal-header">
+                    <span class="terminal-dot dot-red"></span>
+                    <span class="terminal-dot dot-yellow"></span>
+                    <span class="terminal-dot dot-green"></span>
+                    <span class="terminal-title">developer_mindset.py</span>
+                </div>
+                <div class="terminal-body">
+                    <div class="code-line">
+                        <span class="comment"># Think harder...</span>
+                    </div>
+                    <div class="code-line">
+                        <span class="keyword">while</span>(<span class="variable">curious</span>):
+                    </div>
+                    <div class="code-line">
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">question_everything</span>()
+                    </div>
+                    <div class="code-line">
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">dig_deeper</span>()
+                    </div>
+                    <div class="code-line">
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">connect_dots</span>(<span class="variable">unexpected</span>)
+                    </div>
+                    <div class="code-line"><br></div>
+                    <div class="code-line">
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (<span class="variable">stuck</span>):
+                    </div>
+                    <div class="code-line typing-cursor">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">keep_thinking</span>()
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="section" id="work">
+            <div class="section-header reveal">
+                <div class="section-tag">Portfolio</div>
+                <h2 class="section-title">Featured Work</h2>
+                <p class="section-description">
+                    A collection of projects demonstrating expertise in AI, backend systems, and cloud architecture.
+                </p>
+            </div>
             
             <div class="projects-grid">
-                <div class="project-card">
+                <div class="project-card reveal">
                     <div class="project-icon">🏥</div>
                     <div class="project-company">SFDE Technologies</div>
-                    <h3>SwastyaAI</h3>
-                    <p>Led development of a pathology lab tool with end-to-end processing pipeline. Architected infrastructure using AWS EC2, MongoDB, and S3, integrating WhatsApp API for seamless customer delivery to 500+ patients.</p>
-                    <div class="tech-tags">
-                        <span class="tech-tag">AWS EC2</span>
-                        <span class="tech-tag">MongoDB</span>
-                        <span class="tech-tag">S3</span>
-                        <span class="tech-tag">WhatsApp API</span>
+                    <h3>AI Medical Report Processing</h3>
+                    <p>Built Docker-based FastAPI backend on AWS EC2, reducing PDF processing time from 25 minutes to under 10 minutes. Architected multi-tenant system with WhatsApp integration.</p>
+                    <div class="tech-stack">
+                        <span class="tech-badge">FastAPI</span>
+                        <span class="tech-badge">Docker</span>
+                        <span class="tech-badge">AWS EC2</span>
+                        <span class="tech-badge">MongoDB</span>
+                        <span class="tech-badge">Playwright</span>
                     </div>
                 </div>
 
-                <div class="project-card">
+                <div class="project-card reveal">
+                    <div class="project-icon">🧬</div>
+                    <div class="project-company">SFDE Technologies</div>
+                    <h3>Bio Age Calculator</h3>
+                    <p>Developed tool extracting 9 biomarkers from PDF reports via OCR, applying NHANES research coefficients to calculate biological age and health risk scores.</p>
+                    <div class="tech-stack">
+                        <span class="tech-badge">OCR</span>
+                        <span class="tech-badge">Python</span>
+                        <span class="tech-badge">PDF Parsing</span>
+                        <span class="tech-badge">ML</span>
+                    </div>
+                </div>
+
+                <div class="project-card reveal">
                     <div class="project-icon">🤖</div>
                     <div class="project-company">Discoveries Quintessential</div>
                     <h3>AskHR - RAG System</h3>
-                    <p>Built a Retrieval-Augmented Generation powered AskHR system to parse and vectorize candidate resumes into PostgreSQL, streamlining candidate search and profile matching for recruiters.</p>
-                    <div class="tech-tags">
-                        <span class="tech-tag">RAG</span>
-                        <span class="tech-tag">PostgreSQL</span>
-                        <span class="tech-tag">Vector DB</span>
-                        <span class="tech-tag">AI/ML</span>
+                    <p>Built RAG-powered system processing 55K candidate resumes on PostgreSQL, improving recruiter search accuracy by 35% and reducing screening time by 45%.</p>
+                    <div class="tech-stack">
+                        <span class="tech-badge">RAG</span>
+                        <span class="tech-badge">PostgreSQL</span>
+                        <span class="tech-badge">Vector DB</span>
+                        <span class="tech-badge">NLP</span>
                     </div>
                 </div>
 
-                <div class="project-card">
-                    <div class="project-icon">💼</div>
+                <div class="project-card reveal">
+                    <div class="project-icon">⚙️</div>
                     <div class="project-company">Discoveries Quintessential</div>
-                    <h3>ATS Platform</h3>
-                    <p>Deployed full-stack ATS infrastructure on AWS with scalable AI-native microservices for job posting, JD parsing, and document processing. Built responsive dashboards reducing task completion time by 30%.</p>
-                    <div class="tech-tags">
-                        <span class="tech-tag">React</span>
-                        <span class="tech-tag">Next.js</span>
-                        <span class="tech-tag">AWS</span>
-                        <span class="tech-tag">GraphQL</span>
-                        <span class="tech-tag">Groq LLM</span>
+                    <h3>Talent Acquisition Platform</h3>
+                    <p>Designed n8n workflows automating recruitment for 60+ clients. Built React dashboards reducing task completion time by 30%.</p>
+                    <div class="tech-stack">
+                        <span class="tech-badge">n8n</span>
+                        <span class="tech-badge">React</span>
+                        <span class="tech-badge">Next.js</span>
+                        <span class="tech-badge">Tailwind</span>
                     </div>
                 </div>
 
-                <div class="project-card">
+                <div class="project-card reveal">
                     <div class="project-icon">📚</div>
-                    <div class="project-company">Sunstone Education</div>
+                    <div class="project-company">Sunstone Eduversity</div>
                     <h3>Full-Stack Training Program</h3>
-                    <p>Conducted comprehensive training for 300+ IT students across 6 colleges under Anna University. Delivered courses in DBMS and OOPS with hands-on assignments and constructive feedback.</p>
-                    <div class="tech-tags">
-                        <span class="tech-tag">Teaching</span>
-                        <span class="tech-tag">DBMS</span>
-                        <span class="tech-tag">OOPS</span>
-                        <span class="tech-tag">Mentorship</span>
+                    <p>Trained 300+ students across 6 colleges in full-stack development. Created 30+ assessments with 85% average grade achievement.</p>
+                    <div class="tech-stack">
+                        <span class="tech-badge">Teaching</span>
+                        <span class="tech-badge">DBMS</span>
+                        <span class="tech-badge">OOPS</span>
+                        <span class="tech-badge">Full-Stack</span>
                     </div>
                 </div>
 
-                <div class="project-card">
+                <div class="project-card reveal">
                     <div class="project-icon">🚀</div>
-                    <div class="project-company">Zoomifier Corp</div>
+                    <div class="project-company">Zoomifier Corporation</div>
                     <h3>SaaS Sales Module</h3>
-                    <p>Designed REST APIs for sales module improving data exchange efficiency by 30%. Enhanced Vue.js frontend components and refactored codebase, reducing loading time by 20%.</p>
-                    <div class="tech-tags">
-                        <span class="tech-tag">REST API</span>
-                        <span class="tech-tag">Vue.js</span>
-                        <span class="tech-tag">Node.js</span>
-                        <span class="tech-tag">Performance</span>
+                    <p>Created REST APIs improving data exchange efficiency by 30%. Refactored Vue.js codebase reducing load time by 20%.</p>
+                    <div class="tech-stack">
+                        <span class="tech-badge">REST API</span>
+                        <span class="tech-badge">Vue.js</span>
+                        <span class="tech-badge">Node.js</span>
+                        <span class="tech-badge">Performance</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="section section-white" id="skills">
-            <h2 class="section-title">Technical Expertise</h2>
-            <p class="section-subtitle">A comprehensive toolkit for building modern, scalable applications.</p>
+        <section class="section" id="skills">
+            <div class="section-header reveal">
+                <div class="section-tag">Expertise</div>
+                <h2 class="section-title">Technical Skills</h2>
+                <p class="section-description">
+                    Comprehensive toolkit for building modern, production-grade applications.
+                </p>
+            </div>
             
             <div class="skills-grid">
-                <div class="skill-category">
-                    <h3><span>💻</span> Programming</h3>
-                    <div class="skill-list">
-                        <span class="skill-item">Python</span>
-                        <span class="skill-item">JavaScript</span>
-                        <span class="skill-item">Java</span>
+                <div class="skill-category reveal">
+                    <h3>Programming Languages</h3>
+                    <div class="skill-items">
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
+                            Python
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript">
+                            JavaScript
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java">
+                            Java
+                        </span>
                     </div>
                 </div>
-                <div class="skill-category">
-                    <h3><span>🛠️</span> Frameworks</h3>
-                    <div class="skill-list">
-                        <span class="skill-item">Node.js</span>
-                        <span class="skill-item">Express</span>
-                        <span class="skill-item">FastAPI</span>
-                        <span class="skill-item">Next.js</span>
-                        <span class="skill-item">React.js</span>
+
+                <div class="skill-category reveal">
+                    <h3>Frameworks & Libraries</h3>
+                    <div class="skill-items">
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js">
+                            Node.js
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" alt="FastAPI">
+                            FastAPI
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React">
+                            React
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js" style="filter: invert(1);">
+                            Next.js
+                        </span>
                     </div>
                 </div>
-                <div class="skill-category">
-                    <h3><span>🗄️</span> Databases</h3>
-                    <div class="skill-list">
-                        <span class="skill-item">PostgreSQL</span>
-                        <span class="skill-item">MongoDB</span>
-                        <span class="skill-item">DynamoDB</span>
-                        <span class="skill-item">Redis</span>
+
+                <div class="skill-category reveal">
+                    <h3>Databases</h3>
+                    <div class="skill-items">
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="PostgreSQL">
+                            PostgreSQL
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" alt="MongoDB">
+                            MongoDB
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg" alt="Redis">
+                            Redis
+                        </span>
                     </div>
                 </div>
-                <div class="skill-category">
-                    <h3><span>☁️</span> Cloud & DevOps</h3>
-                    <div class="skill-list">
-                        <span class="skill-item">AWS EC2</span>
-                        <span class="skill-item">S3</span>
-                        <span class="skill-item">Lambda</span>
-                        <span class="skill-item">SQS/SNS</span>
-                        <span class="skill-item">Docker</span>
+
+                <div class="skill-category reveal">
+                    <h3>Cloud & DevOps</h3>
+                    <div class="skill-items">
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS" style="filter: brightness(3);">
+                            AWS
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker">
+                            Docker
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git">
+                            Git
+                        </span>
+                        <span class="skill-item">
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" alt="Linux">
+                            Linux
+                        </span>
                     </div>
                 </div>
             </div>
@@ -724,18 +865,54 @@
 
     <footer id="contact">
         <div class="container">
-            <h2 class="section-title">Let's Work Together</h2>
-            <p class="section-subtitle" style="margin: 0 auto 32px; text-align: center;">Always open to discussing new projects, creative ideas, or opportunities.</p>
-            <div class="footer-links">
-                <a href="mailto:gourav.tailor.ai@gmail.com">Email</a>
-                <a href="https://github.com/Gourav-Tailor">GitHub</a>
-                <a href="https://www.linkedin.com/in/gourav-tailor-2461b117a/">LinkedIn</a>
+            <div class="footer-content">
+                <h2 class="section-title reveal">Let's Connect</h2>
+                <p class="section-description reveal" style="margin: 0 auto 40px; text-align: center;">
+                    Open to discussing new projects, creative ideas, and opportunities.
+                </p>
+                <div class="footer-links reveal">
+                    <a href="mailto:gourav.tailor.ai@gmail.com">
+                        <span>📧</span>
+                        Email
+                    </a>
+                    <a href="https://github.com/Gourav-Tailor">
+                        <span>💻</span>
+                        GitHub
+                    </a>
+                    <a href="https://www.linkedin.com/in/gourav-tailor-2461b117a/">
+                        <span>💼</span>
+                        LinkedIn
+                    </a>
+                </div>
+                <p class="footer-text">© 2026 Gourav Tailor · IIT Bombay · Built with passion</p>
             </div>
-            <p style="color: #737373; margin-top: 24px; font-size: 0.9em;">© 2026 Gourav Tailor · IIT Bombay · Jaipur, India</p>
         </div>
     </footer>
 
     <script>
+        // Custom cursor
+        const cursorDot = document.getElementById('cursorDot');
+        const cursorOutline = document.getElementById('cursorOutline');
+
+        document.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+            
+            cursorOutline.style.left = e.clientX - 16 + 'px';
+            cursorOutline.style.top = e.clientY - 16 + 'px';
+        });
+
+        document.querySelectorAll('a, .btn, .project-card').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorDot.style.transform = 'scale(2)';
+                cursorOutline.style.transform = 'scale(1.5)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorDot.style.transform = 'scale(1)';
+                cursorOutline.style.transform = 'scale(1)';
+            });
+        });
+
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -747,24 +924,31 @@
             });
         });
 
-        // Intersection Observer for scroll animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -80px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '0';
-                    entry.target.style.transform = 'translateY(20px)';
-                    entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
+        // Reveal on scroll
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealOnScroll = () => {
+            revealElements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+                
+                if (rect.top < windowHeight - 100) {
+                    el.classList.add('active');
                 }
             });
-        }, observerOptions);
+        };
 
-        document.querySelectorAll('.project-card, .stat-card, .skill-category').forEach(el => {
-            observer.observe(el);
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll(); // Initial check
+
+        // Parallax effect for hero
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero-content');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * 0.3}px)`;
+                hero.style.opacity = 1 - (scrolled / 500);
+            }
         });
     </script>
 </body>
