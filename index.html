@@ -95,7 +95,7 @@
             position: relative;
         }
 
-        .stars-container {
+        .game-of-life-canvas {
             position: fixed;
             top: 0;
             left: 0;
@@ -103,39 +103,15 @@
             height: 100%;
             z-index: 0;
             pointer-events: none;
+            opacity: 0.15;
         }
 
         .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
+            display: none;
         }
 
-        .star.small {
-            width: 1px;
-            height: 1px;
-            opacity: 0.5;
-        }
-
-        .star.medium {
-            width: 2px;
-            height: 2px;
-            opacity: 0.7;
-        }
-
-        .star.large {
-            width: 3px;
-            height: 3px;
-            opacity: 0.9;
-            box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
+        .stars-container {
+            display: none;
         }
 
         .cursor-dot {
@@ -817,7 +793,7 @@
     </style>
 </head>
 <body>
-    <div class="stars-container" id="starsContainer"></div>
+    <canvas class="game-of-life-canvas" id="gameOfLife"></canvas>
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-outline" id="cursorOutline"></div>
 
@@ -1128,28 +1104,185 @@
     </footer>
 
     <script>
-        // Generate twinkling stars
-        const starsContainer = document.getElementById('starsContainer');
-        const numberOfStars = 150;
-
-        for (let i = 0; i < numberOfStars; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
+        // Conway's Game of Life Background
+        const canvas = document.getElementById('gameOfLife');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height, cellSize, cols, rows;
+        let grid, nextGrid;
+        
+        function initGameOfLife() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            cellSize = 15;
             
-            // Random size
-            const sizeClass = ['small', 'medium', 'large'][Math.floor(Math.random() * 3)];
-            star.classList.add(sizeClass);
+            canvas.width = width;
+            canvas.height = height;
             
-            // Random position
-            star.style.left = Math.random() * 100 + '%';
-            star.style.top = Math.random() * 100 + '%';
+            cols = Math.floor(width / cellSize);
+            rows = Math.floor(height / cellSize);
             
-            // Random animation delay
-            star.style.animationDelay = Math.random() * 3 + 's';
-            star.style.animationDuration = (2 + Math.random() * 3) + 's';
+            grid = createGrid();
+            nextGrid = createGrid();
             
-            starsContainer.appendChild(star);
+            // Initialize with random cells and some classic patterns
+            randomize();
+            addGliders();
         }
+        
+        function createGrid() {
+            const arr = [];
+            for (let i = 0; i < cols; i++) {
+                arr[i] = [];
+                for (let j = 0; j < rows; j++) {
+                    arr[i][j] = 0;
+                }
+            }
+            return arr;
+        }
+        
+        function randomize() {
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    grid[i][j] = Math.random() > 0.85 ? 1 : 0;
+                }
+            }
+        }
+        
+        function addGliders() {
+            // Add some glider patterns for interesting movement
+            const gliderPattern = [
+                [0, 1, 0],
+                [0, 0, 1],
+                [1, 1, 1]
+            ];
+            
+            // Add 5 random gliders
+            for (let g = 0; g < 5; g++) {
+                const startX = Math.floor(Math.random() * (cols - 10)) + 5;
+                const startY = Math.floor(Math.random() * (rows - 10)) + 5;
+                
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if (startX + i >= 0 && startX + i < cols && startY + j >= 0 && startY + j < rows) {
+                            grid[startX + i][startY + j] = gliderPattern[i][j];
+                        }
+                    }
+                }
+            }
+        }
+        
+        function countNeighbors(x, y) {
+            let count = 0;
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    if (i === 0 && j === 0) continue;
+                    
+                    let col = x + i;
+                    let row = y + j;
+                    
+                    // Wrap around edges
+                    if (col < 0) col = cols - 1;
+                    if (col >= cols) col = 0;
+                    if (row < 0) row = rows - 1;
+                    if (row >= rows) row = 0;
+                    
+                    count += grid[col][row];
+                }
+            }
+            return count;
+        }
+        
+        function updateGrid() {
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    const neighbors = countNeighbors(i, j);
+                    const current = grid[i][j];
+                    
+                    // Conway's Game of Life rules
+                    if (current === 1) {
+                        nextGrid[i][j] = (neighbors === 2 || neighbors === 3) ? 1 : 0;
+                    } else {
+                        nextGrid[i][j] = neighbors === 3 ? 1 : 0;
+                    }
+                }
+            }
+            
+            // Swap grids
+            const temp = grid;
+            grid = nextGrid;
+            nextGrid = temp;
+        }
+        
+        function drawGrid() {
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(0, 255, 136, 0.05)';
+            ctx.lineWidth = 0.5;
+            
+            for (let i = 0; i <= cols; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * cellSize, 0);
+                ctx.lineTo(i * cellSize, height);
+                ctx.stroke();
+            }
+            
+            for (let j = 0; j <= rows; j++) {
+                ctx.beginPath();
+                ctx.moveTo(0, j * cellSize);
+                ctx.lineTo(width, j * cellSize);
+                ctx.stroke();
+            }
+            
+            // Draw cells
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    if (grid[i][j] === 1) {
+                        const x = i * cellSize;
+                        const y = j * cellSize;
+                        
+                        // Create gradient effect for cells
+                        const gradient = ctx.createRadialGradient(
+                            x + cellSize / 2, y + cellSize / 2, 0,
+                            x + cellSize / 2, y + cellSize / 2, cellSize / 2
+                        );
+                        gradient.addColorStop(0, 'rgba(0, 255, 136, 0.8)');
+                        gradient.addColorStop(1, 'rgba(0, 255, 136, 0.3)');
+                        
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+                    }
+                }
+            }
+        }
+        
+        function animate() {
+            drawGrid();
+            updateGrid();
+            setTimeout(() => requestAnimationFrame(animate), 150);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            initGameOfLife();
+        });
+        
+        // Initialize and start
+        initGameOfLife();
+        animate();
+        
+        // Add some randomness periodically to keep it interesting
+        setInterval(() => {
+            if (grid && cols > 0 && rows > 0) {
+                const x = Math.floor(Math.random() * cols);
+                const y = Math.floor(Math.random() * rows);
+                if (grid[x] && grid[x][y] !== undefined) {
+                    grid[x][y] = 1;
+                }
+            }
+        }, 5000);
 
         // Custom cursor
         const cursorDot = document.getElementById('cursorDot');
