@@ -315,14 +315,14 @@
         }
 
         /* Voice Assistant Styles */
-        .voice-assistant {
+        .chat-widget {
             position: fixed;
             bottom: 40px;
             right: 40px;
             z-index: 1001;
         }
 
-        .voice-btn {
+        .chat-button {
             width: 70px;
             height: 70px;
             border-radius: 50%;
@@ -337,86 +337,242 @@
             position: relative;
         }
 
-        .voice-btn:hover {
+        .chat-button:hover {
             transform: scale(1.1);
             box-shadow: 0 12px 32px rgba(0, 255, 136, 0.5);
         }
 
-        .voice-btn.listening {
-            animation: pulse 1.5s infinite;
-        }
-
-        .voice-btn.processing {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(0, 255, 136, 0.3); }
-            50% { transform: scale(1.15); box-shadow: 0 12px 40px rgba(0, 255, 136, 0.6); }
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .voice-icon {
+        .chat-icon {
             font-size: 2em;
             color: var(--bg-primary);
         }
 
-        .voice-status {
+        .chat-container {
             position: absolute;
-            bottom: 80px;
+            bottom: 90px;
             right: 0;
+            width: 400px;
+            height: 600px;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px 20px;
-            min-width: 250px;
-            max-width: 350px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             display: none;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        .voice-status.active {
-            display: block;
+        .chat-container.active {
+            display: flex;
             animation: slideUp 0.3s ease;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .chat-header {
+            padding: 20px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .voice-status-text {
-            color: var(--text-primary);
-            font-size: 0.9em;
-            margin-bottom: 8px;
+        .chat-header h3 {
+            font-size: 1.2em;
+            color: var(--accent);
+            margin: 0;
         }
 
-        .voice-transcript {
+        .chat-close {
+            background: none;
+            border: none;
             color: var(--text-secondary);
-            font-size: 0.85em;
-            font-style: italic;
-            margin-top: 8px;
-            padding-top: 8px;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s ease;
+        }
+
+        .chat-close:hover {
+            color: var(--accent);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .message-avatar.user {
+            background: var(--bg-primary);
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .message-content.user {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+        }
+
+        .message-content a {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .message-content a:hover {
+            color: var(--accent-dim);
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: var(--bg-primary);
             border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
-        .loading-dots {
-            display: inline-block;
+        .chat-input {
+            flex: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 0.95em;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s ease;
         }
 
-        .loading-dots::after {
-            content: '';
-            animation: loadingDots 1.5s infinite;
+        .chat-input:focus {
+            border-color: var(--accent);
         }
 
-        @keyframes loadingDots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
+        .chat-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .chat-action-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: var(--accent);
+            border: none;
+            color: var(--bg-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .chat-action-btn:hover {
+            background: var(--accent-dim);
+            transform: scale(1.05);
+        }
+
+        .chat-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chat-action-btn.listening {
+            animation: pulse 1.5s infinite;
+        }
+
+        .chat-action-btn.processing {
+            animation: spin 1s linear infinite;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: typingBounce 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                width: calc(100vw - 40px);
+                height: calc(100vh - 140px);
+                right: 20px;
+            }
         }
 
         .hero-tag {
@@ -1209,14 +1365,39 @@
         </div>
     </footer>
 
-    <!-- Voice Assistant -->
-    <div class="voice-assistant">
-        <div class="voice-status" id="voiceStatus">
-            <div class="voice-status-text" id="statusText">Initializing voice assistant...</div>
-            <div class="voice-transcript" id="transcript"></div>
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-header">
+                <h3>💬 Chat with Gourav</h3>
+                <button class="chat-close" id="chatClose">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        Hi! I'm Gourav's AI assistant. Ask me anything about his experience, skills, or projects!
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Ask me anything..."
+                    autocomplete="off"
+                />
+                <button class="chat-action-btn" id="voiceBtn" title="Voice input">
+                    📞
+                </button>
+                <button class="chat-action-btn" id="sendBtn" title="Send message">
+                    ➤
+                </button>
+            </div>
         </div>
-        <button class="voice-btn" id="voiceBtn" aria-label="Voice Assistant">
-            <span class="voice-icon" id="voiceIcon">🎤</span>
+        <button class="chat-button" id="chatButton">
+            <span class="chat-icon">💬</span>
         </button>
     </div>
 
@@ -1401,15 +1582,14 @@
             }
         }, 5000);
 
-        // Voice Assistant Implementation
-        class VoiceAssistant {
+        // Chat Assistant Implementation
+        class ChatAssistant {
             constructor() {
                 this.recognition = null;
                 this.synthesis = window.speechSynthesis;
                 this.isListening = false;
                 this.isProcessing = false;
-                this.embedder = null;
-                this.useSimpleFallback = false;
+                this.useSimpleFallback = true;
                 this.knowledgeBase = this.initKnowledgeBase();
                 this.init();
             }
@@ -1418,114 +1598,176 @@
                 return [
                     {
                         question: "What is your name? Who are you?",
-                        keywords: ["name", "who", "introduce"],
+                        keywords: ["name", "who", "introduce", "yourself"],
                         answer: "I'm Gourav Tailor, a Software Engineer from IIT Bombay specializing in AI-native applications and backend development."
                     },
                     {
                         question: "What is your experience? How many years of experience do you have?",
-                        keywords: ["experience", "years", "work", "worked"],
-                        answer: "I have over 2 years of professional experience building scalable systems, processing 55,000 plus resumes, and serving 60 plus clients."
+                        keywords: ["experience", "years", "work", "worked", "professional"],
+                        answer: "I have over 2 years of professional experience building scalable systems, processing 55,000+ resumes, and serving 60+ clients."
                     },
                     {
                         question: "What technologies do you know? What are your skills?",
-                        keywords: ["technologies", "skills", "tech", "stack", "tools"],
+                        keywords: ["technologies", "skills", "tech", "stack", "tools", "programming", "languages"],
                         answer: "I specialize in Python, JavaScript, FastAPI, Node.js, React, Next.js, AWS, Docker, PostgreSQL, and MongoDB. I also work with AI and machine learning technologies."
                     },
                     {
                         question: "Where did you study? What is your education?",
-                        keywords: ["study", "education", "college", "university", "degree"],
+                        keywords: ["study", "education", "college", "university", "degree", "iit"],
                         answer: "I graduated from IIT Bombay with a Bachelor of Technology degree between 2018 and 2022."
                     },
                     {
                         question: "What projects have you worked on? Tell me about your work",
-                        keywords: ["projects", "work", "built", "developed", "created"],
-                        answer: "I've built an AI medical report processing system reducing processing time by 60%, a RAG-powered resume search system, and trained over 300 students in full-stack development."
+                        keywords: ["projects", "work", "built", "developed", "created", "portfolio"],
+                        answer: "I've built an AI medical report processing system reducing processing time by 60%, a RAG-powered resume search system processing 55K resumes, and trained over 300 students in full-stack development."
                     },
                     {
                         question: "What is your current role? Where do you work?",
-                        keywords: ["current", "role", "job", "work", "company"],
+                        keywords: ["current", "role", "job", "work", "company", "employer"],
                         answer: "I currently work at SFDE Technologies as a Software Developer, building AI-powered medical report processing systems using FastAPI, Docker, and AWS."
                     },
                     {
                         question: "How can I contact you? What is your email?",
-                        keywords: ["contact", "email", "reach", "connect"],
-                        answer: "You can reach me at gourav dot tailor dot ai at gmail dot com, or connect with me on LinkedIn and GitHub."
+                        keywords: ["contact", "email", "reach", "connect", "touch"],
+                        answer: "You can reach me at gourav.tailor.ai@gmail.com, or connect with me on <a href='https://www.linkedin.com/in/gourav-tailor-2461b117a/' target='_blank'>LinkedIn</a> and <a href='https://github.com/Gourav-Tailor' target='_blank'>GitHub</a>."
                     },
                     {
                         question: "Are you looking for opportunities? Are you open to work?",
-                        keywords: ["opportunities", "hiring", "job", "open", "available"],
-                        answer: "Yes, I'm open to new opportunities in Backend Engineering, AI ML Engineering, Full-Stack Development, and Cloud Architecture roles."
+                        keywords: ["opportunities", "hiring", "job", "open", "available", "looking"],
+                        answer: "Yes! I'm open to new opportunities in Backend Engineering, AI/ML Engineering, Full-Stack Development, and Cloud Architecture roles."
                     },
                     {
                         question: "What databases do you work with?",
-                        keywords: ["database", "databases", "sql", "nosql"],
-                        answer: "I work with PostgreSQL, MongoDB, DynamoDB, and Redis for various use cases from relational data to caching."
+                        keywords: ["database", "databases", "sql", "nosql", "data"],
+                        answer: "I work with PostgreSQL, MongoDB, DynamoDB, and Redis for various use cases from relational data to caching and real-time applications."
                     },
                     {
                         question: "Tell me about your AI projects",
-                        keywords: ["ai", "artificial intelligence", "machine learning", "ml"],
-                        answer: "I've built a RAG-powered AskHR system that processes 55,000 resumes, improving search accuracy by 35%. I also developed a Bio Age Calculator using OCR and machine learning."
+                        keywords: ["ai", "artificial intelligence", "machine learning", "ml", "rag"],
+                        answer: "I've built a RAG-powered AskHR system that processes 55,000 resumes (improving search accuracy by 35%), and a Bio Age Calculator using OCR and machine learning to extract biomarkers from medical reports."
+                    },
+                    {
+                        question: "Can I see your resume? Do you have a resume?",
+                        keywords: ["resume", "cv", "curriculum", "download", "pdf"],
+                        answer: "Yes! You can <a href='assets/Resume-Gourav-Tailor-1.pdf' target='_blank' download>download my resume here</a> or <a href='assets/Resume-Gourav-Tailor-1.pdf' target='_blank'>view it online</a>."
+                    },
+                    {
+                        question: "What is your github? Do you have code samples?",
+                        keywords: ["github", "code", "repository", "samples", "portfolio"],
+                        answer: "Check out my GitHub at <a href='https://github.com/Gourav-Tailor' target='_blank'>github.com/Gourav-Tailor</a> where I share my projects and contributions."
                     }
                 ];
             }
 
             async init() {
-                this.updateStatus('Initializing voice assistant...');
-                
-                // Check browser support
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                    this.updateStatus('Voice recognition not supported in this browser');
+                // Check browser support for voice
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = false;
+                    this.recognition.lang = 'en-US';
+
+                    this.recognition.onresult = (event) => this.handleSpeechResult(event);
+                    this.recognition.onerror = (event) => this.handleVoiceError(event);
+                    this.recognition.onend = () => this.handleRecognitionEnd();
+                }
+
+                // Setup event listeners
+                document.getElementById('chatButton').addEventListener('click', () => this.toggleChat());
+                document.getElementById('chatClose').addEventListener('click', () => this.closeChat());
+                document.getElementById('sendBtn').addEventListener('click', () => this.sendMessage());
+                document.getElementById('chatInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+                document.getElementById('voiceBtn').addEventListener('click', () => this.toggleVoice());
+            }
+
+            toggleChat() {
+                const container = document.getElementById('chatContainer');
+                container.classList.toggle('active');
+            }
+
+            closeChat() {
+                document.getElementById('chatContainer').classList.remove('active');
+            }
+
+            toggleVoice() {
+                if (!this.recognition) {
+                    this.addMessage('Voice input not supported in this browser', 'bot');
                     return;
                 }
 
-                // Initialize speech recognition
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                this.recognition = new SpeechRecognition();
-                this.recognition.continuous = false;
-                this.recognition.interimResults = false;
-                this.recognition.lang = 'en-US';
-
-                this.recognition.onresult = (event) => this.handleSpeechResult(event);
-                this.recognition.onerror = (event) => this.handleError(event);
-                this.recognition.onend = () => this.handleRecognitionEnd();
-
-                // Use keyword matching by default (faster and more reliable)
-                this.useSimpleFallback = true;
-                this.updateStatus('Voice assistant ready! Click the mic to ask me anything.');
-                
-                setTimeout(() => this.hideStatus(), 3000);
-
-                // Setup button
-                document.getElementById('voiceBtn').addEventListener('click', () => this.toggleListening());
-                
-                // Optional: Try to load AI model in background (won't block user)
-                this.loadAIModelInBackground();
+                if (this.isListening) {
+                    this.stopListening();
+                } else {
+                    this.startListening();
+                }
             }
 
-            async loadAIModelInBackground() {
+            startListening() {
                 try {
-                    const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.6.0');
-                    this.embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-                    await this.precomputeEmbeddings();
-                    this.useSimpleFallback = false;
-                    console.log('AI model loaded successfully - enhanced semantic search enabled');
+                    this.isListening = true;
+                    const voiceBtn = document.getElementById('voiceBtn');
+                    voiceBtn.classList.add('listening');
+                    voiceBtn.textContent = '🎤';
+                    this.recognition.start();
                 } catch (error) {
-                    console.log('Using keyword-based matching (works great!)');
+                    console.error('Error starting voice:', error);
+                    this.isListening = false;
                 }
             }
 
-            async precomputeEmbeddings() {
-                for (let item of this.knowledgeBase) {
-                    const output = await this.embedder(item.question, { pooling: 'mean', normalize: true });
-                    item.embedding = Array.from(output.data);
+            stopListening() {
+                this.isListening = false;
+                const voiceBtn = document.getElementById('voiceBtn');
+                voiceBtn.classList.remove('listening');
+                voiceBtn.textContent = '📞';
+                if (this.recognition) {
+                    this.recognition.stop();
                 }
             }
 
-            cosineSimilarity(a, b) {
-                const dotProduct = a.reduce((sum, val, i) => sum + val * b[i], 0);
-                const magnitudeA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
-                const magnitudeB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
-                return dotProduct / (magnitudeA * magnitudeB);
+            handleSpeechResult(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('chatInput').value = transcript;
+                this.sendMessage();
+                this.stopListening();
+            }
+
+            handleVoiceError(event) {
+                console.error('Voice error:', event.error);
+                this.stopListening();
+                if (event.error === 'not-allowed') {
+                    this.addMessage('Microphone access denied. Please enable it in browser settings.', 'bot');
+                }
+            }
+
+            handleRecognitionEnd() {
+                if (this.isListening) {
+                    this.stopListening();
+                }
+            }
+
+            async sendMessage() {
+                const input = document.getElementById('chatInput');
+                const message = input.value.trim();
+                
+                if (!message) return;
+
+                // Add user message
+                this.addMessage(message, 'user');
+                input.value = '';
+
+                // Show typing indicator
+                this.showTyping();
+
+                // Get response
+                setTimeout(async () => {
+                    const answer = await this.findBestAnswer(message);
+                    this.hideTyping();
+                    this.addMessage(answer, 'bot');
+                }, 500);
             }
 
             findAnswerByKeywords(question) {
@@ -1546,175 +1788,65 @@
                     }
                 }
 
-                return bestScore > 0 ? bestMatch.answer : "I'm not sure about that. You can check my resume or contact me directly for more information.";
+                return bestScore > 0 ? bestMatch.answer : "I'm not sure about that. You can ask me about Gourav's experience, skills, projects, education, or contact information. You can also request his resume!";
             }
 
             async findBestAnswer(question) {
-                // Use keyword fallback if AI model didn't load
-                if (this.useSimpleFallback || !this.embedder) {
-                    return this.findAnswerByKeywords(question);
-                }
-
-                try {
-                    const questionOutput = await this.embedder(question, { pooling: 'mean', normalize: true });
-                    const questionEmbedding = Array.from(questionOutput.data);
-
-                    let bestMatch = null;
-                    let bestScore = -1;
-
-                    for (let item of this.knowledgeBase) {
-                        const score = this.cosineSimilarity(questionEmbedding, item.embedding);
-                        if (score > bestScore) {
-                            bestScore = score;
-                            bestMatch = item;
-                        }
-                    }
-
-                    // Return answer if similarity is above threshold
-                    return bestScore > 0.5 ? bestMatch.answer : "I'm not sure about that. You can check my resume or contact me directly for more information.";
-                } catch (error) {
-                    console.error('Error with AI embeddings, falling back to keywords:', error);
-                    return this.findAnswerByKeywords(question);
-                }
+                return this.findAnswerByKeywords(question);
             }
 
-            toggleListening() {
-                if (this.isProcessing) return;
+            addMessage(text, type) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${type}`;
                 
-                if (this.isListening) {
-                    this.stopListening();
-                } else {
-                    this.startListening();
-                }
-            }
-
-            startListening() {
-                try {
-                    this.isListening = true;
-                    this.updateIcon('listening');
-                    this.updateStatus('Listening... Ask me anything!');
-                    this.showStatus();
-                    this.recognition.start();
-                } catch (error) {
-                    console.error('Error starting recognition:', error);
-                    this.updateStatus('Error starting microphone');
-                    this.isListening = false;
-                }
-            }
-
-            stopListening() {
-                this.isListening = false;
-                this.updateIcon('idle');
-                this.recognition.stop();
-            }
-
-            async handleSpeechResult(event) {
-                const transcript = event.results[0][0].transcript;
-                this.updateTranscript(`You asked: "${transcript}"`);
-                this.updateStatus('Processing<span class="loading-dots"></span>');
-                this.updateIcon('processing');
-                this.isProcessing = true;
-
-                try {
-                    const answer = await this.findBestAnswer(transcript);
-                    this.speak(answer);
-                    this.updateStatus('Speaking...');
-                } catch (error) {
-                    console.error('Error processing question:', error);
-                    this.updateStatus('Error processing your question');
-                    this.isProcessing = false;
-                }
-            }
-
-            speak(text) {
-                if (this.synthesis.speaking) {
-                    this.synthesis.cancel();
-                }
-
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
-                utterance.volume = 1;
-
-                utterance.onend = () => {
-                    this.isProcessing = false;
-                    this.updateIcon('idle');
-                    this.updateStatus('Voice assistant ready! Click to ask again.');
-                    setTimeout(() => this.hideStatus(), 3000);
-                };
-
-                utterance.onerror = () => {
-                    this.isProcessing = false;
-                    this.updateIcon('idle');
-                    this.updateStatus('Error speaking response');
-                };
-
-                this.synthesis.speak(utterance);
-            }
-
-            handleError(event) {
-                console.error('Speech recognition error:', event.error);
-                this.isListening = false;
-                this.isProcessing = false;
-                this.updateIcon('idle');
+                const avatar = document.createElement('div');
+                avatar.className = `message-avatar ${type}`;
+                avatar.textContent = type === 'user' ? '👤' : '🤖';
                 
-                let errorMsg = 'Error with voice recognition';
-                if (event.error === 'not-allowed') {
-                    errorMsg = 'Microphone access denied. Please enable it.';
-                } else if (event.error === 'no-speech') {
-                    errorMsg = 'No speech detected. Try again!';
-                }
+                const content = document.createElement('div');
+                content.className = `message-content ${type}`;
+                content.innerHTML = text;
                 
-                this.updateStatus(errorMsg);
-                setTimeout(() => this.hideStatus(), 3000);
-            }
-
-            handleRecognitionEnd() {
-                if (this.isListening && !this.isProcessing) {
-                    this.isListening = false;
-                    this.updateIcon('idle');
-                }
-            }
-
-            updateStatus(text) {
-                document.getElementById('statusText').innerHTML = text;
-            }
-
-            updateTranscript(text) {
-                document.getElementById('transcript').textContent = text;
-            }
-
-            showStatus() {
-                document.getElementById('voiceStatus').classList.add('active');
-            }
-
-            hideStatus() {
-                document.getElementById('voiceStatus').classList.remove('active');
-            }
-
-            updateIcon(state) {
-                const btn = document.getElementById('voiceBtn');
-                const icon = document.getElementById('voiceIcon');
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(content);
+                messagesContainer.appendChild(messageDiv);
                 
-                btn.classList.remove('listening', 'processing');
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            showTyping() {
+                const messagesContainer = document.getElementById('chatMessages');
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'chat-message';
+                typingDiv.id = 'typingIndicator';
                 
-                if (state === 'listening') {
-                    btn.classList.add('listening');
-                    icon.textContent = '🎤';
-                } else if (state === 'processing') {
-                    btn.classList.add('processing');
-                    icon.textContent = '⚙️';
-                } else {
-                    icon.textContent = '🎤';
-                }
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.textContent = '🤖';
+                
+                const indicator = document.createElement('div');
+                indicator.className = 'typing-indicator';
+                indicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+                
+                typingDiv.appendChild(avatar);
+                typingDiv.appendChild(indicator);
+                messagesContainer.appendChild(typingDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            hideTyping() {
+                const typing = document.getElementById('typingIndicator');
+                if (typing) typing.remove();
             }
         }
 
-        // Initialize voice assistant when page loads
-        let voiceAssistant;
+        // Initialize chat assistant when page loads
+        let chatAssistant;
         window.addEventListener('load', () => {
             setTimeout(() => {
-                voiceAssistant = new VoiceAssistant();
+                chatAssistant = new ChatAssistant();
             }, 1000);
         });
 
