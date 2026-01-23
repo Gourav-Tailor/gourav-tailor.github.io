@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Runner Game - Gourav Tailor</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="stylesheet" href="game-styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Game UI -->
+        <div class="game-ui">
+            <div class="ui-top">
+                <div class="score-container">
+                    <div class="score-label">Score</div>
+                    <div class="score-value" id="score">0</div>
+                </div>
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <span class="stat-label">Speed:</span>
+                        <span class="stat-value" id="speed">1.0x</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Games:</span>
+                        <span class="stat-value" id="gamesPlayed">0</span>
+                    </div>
+                </div>
+                <button class="back-btn" id="backBtn">← Back to Portfolio</button>
+            </div>
+
+            <div class="controls-info" id="controlsInfo">
+                <div class="control-item">
+                    <span class="key">←</span>
+                    <span class="key">→</span>
+                    <span class="label">Move</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">SPACE</span>
+                    <span class="label">Jump</span>
+                </div>
+            </div>
+
+            <div class="game-over-screen" id="gameOverScreen">
+                <h2>Game Over!</h2>
+                <div class="final-score">Score: <span id="finalScore">0</span></div>
+                <button class="restart-btn" id="restartBtn">Play Again</button>
+            </div>
+        </div>
+
+        <!-- AI Control Panel -->
+        <div class="ai-panel">
+            <button class="ai-toggle" id="aiToggle">
+                <span class="ai-icon">🤖</span>
+                <span class="ai-text">AI: OFF</span>
+            </button>
+            <div class="training-info" id="trainingInfo">
+                <div class="training-status">Training Data: <span id="trainingSize">0</span> samples</div>
+                <div class="training-status">Model Status: <span id="modelStatus">Not Trained</span></div>
+            </div>
+        </div>
+
+        <!-- 3D Canvas -->
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <!-- Three.js and TensorFlow.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.2.0/dist/tf.min.js"></script>
+    <script src="game-script.js"></script>
+</body>
+</html>
