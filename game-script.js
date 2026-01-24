@@ -2,8 +2,8 @@
 const CONFIG = {
     SPEED: 0.4,
     SPEED_INCREMENT: 0,  // No speed increase - constant speed
-    JUMP_FORCE: 0.35,
-    GRAVITY: 0.015,
+    JUMP_FORCE: 0.55,
+    GRAVITY: 0.018,
     LANE_WIDTH: 8,
     OBSTACLE_SPAWN_DISTANCE: 50,
     MIN_OBSTACLE_DISTANCE: 35
@@ -21,6 +21,7 @@ let currentLane = 0; // -1 (left), 0 (center), 1 (right)
 let targetLane = 0;
 let lastObstacleZ = 0;
 let gamesPlayed = 0;
+const PLAYER_GROUND_Y = 2.2; // feet exactly touch ground
 
 // AI State
 let aiEnabled = false;
@@ -111,7 +112,7 @@ function createGround() {
 function createPlayer() {
     player = new THREE.Group();
     // Position player ABOVE ground so legs are visible
-    player.position.set(0, 4, 10);  // Raised 4 units above ground
+    player.position.set(0, PLAYER_GROUND_Y, 10);
 
     // Body proportions - BIGGER for better visibility
     const scale = 2.5;
@@ -212,24 +213,35 @@ function createPlayer() {
 }
 
 function animatePlayer() {
-    // Wobbly baby-like movement
-    const time = Date.now() * 0.001;
-    
+    if (isJumping) return; // stop run animation in air
+
+    const speed = 0.18;
+    const time = Date.now() * 0.01;
+
     player.children.forEach(part => {
+        if (part.userData.type === 'leg') {
+            const phase = part.userData.side === 1 ? 0 : Math.PI;
+
+            // Forward/back step
+            part.rotation.x = Math.sin(time * speed + phase) * 0.8;
+
+            // Small hip up/down → walking feel
+            part.position.y = Math.max(
+                Math.sin(time * speed + phase) * 0.2,
+                -0.1
+            );
+        }
+
         if (part.userData.type === 'arm') {
-            part.userData.angle += part.userData.speed;
-            part.rotation.x = Math.sin(part.userData.angle) * 0.5;
-            part.rotation.z = part.userData.side * (0.1 + Math.cos(part.userData.angle) * 0.2);
-        } else if (part.userData.type === 'leg') {
-            part.userData.angle += part.userData.speed;
-            part.rotation.x = Math.sin(part.userData.angle + Math.PI) * 0.4;
+            const phase = part.userData.side === 1 ? Math.PI : 0;
+            part.rotation.x = Math.sin(time * speed + phase) * 0.6;
         }
     });
 
-    // Body wobble
-    player.rotation.z = Math.sin(time * 2) * 0.05;
-    player.rotation.x = Math.sin(time * 3) * 0.03;
+    // Slight body bob (human gait)
+    player.position.y += Math.sin(time * speed * 2) * 0.02;
 }
+
 
 function createObstacle(z) {
     const type = Math.random() > 0.5 ? 'tall' : 'short';
@@ -356,11 +368,12 @@ function updatePlayer() {
         player.position.y += playerVelocityY;
 
         // Ground is at 4 units (player's base height above track)
-        if (player.position.y <= 4) {
-            player.position.y = 4;
+        if (player.position.y <= PLAYER_GROUND_Y) {
+            player.position.y = PLAYER_GROUND_Y;
             playerVelocityY = 0;
             isJumping = false;
         }
+
     }
 
     // Animate limbs
