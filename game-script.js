@@ -111,7 +111,7 @@ function createGround() {
 function createPlayer() {
     player = new THREE.Group();
     // Position player ABOVE ground so legs are visible
-    player.position.set(0, 3, 10);  // Raised 1.5 units above ground
+    player.position.set(0, 4, 10);  // Raised 4 units above ground
 
     // Body proportions - BIGGER for better visibility
     const scale = 2.5;
@@ -197,7 +197,7 @@ function createPlayer() {
         hip.add(shin);
 
         // Feet for better visibility
-        const footGeo = new THREE.BoxGeometry(limbWidth * 1.2, limbWidth * 0.5, limbWidth * 1.5);
+        const footGeo = new THREE.BoxGeometry(limbWidth * 1.2, limbWidth * 0.5, limbWidth * 4);
         const foot = new THREE.Mesh(footGeo, material);
         foot.position.y = -limbLength * 2 - limbWidth * 0.25;
         foot.position.z = limbWidth * 0.3;
@@ -355,9 +355,9 @@ function updatePlayer() {
         playerVelocityY -= CONFIG.GRAVITY;
         player.position.y += playerVelocityY;
 
-        // Ground is at 1.5 units (player's base height above track)
-        if (player.position.y <= 1.5) {
-            player.position.y = 1.5;
+        // Ground is at 4 units (player's base height above track)
+        if (player.position.y <= 4) {
+            player.position.y = 4;
             playerVelocityY = 0;
             isJumping = false;
         }
@@ -562,7 +562,7 @@ function resetGame() {
     isJumping = false;
     
     // Reset player to raised position
-    player.position.set(0, 1.5, 10);
+    player.position.set(0, 4, 10);
     
     obstacles.forEach(obstacle => scene.remove(obstacle));
     obstacles = [];
