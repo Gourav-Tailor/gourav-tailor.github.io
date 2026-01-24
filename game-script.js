@@ -1,10 +1,10 @@
 // Game Configuration
 const CONFIG = {
     SPEED: 0.4,
-    SPEED_INCREMENT: 0.003,
+    SPEED_INCREMENT: 0,  // No speed increase - constant speed
     JUMP_FORCE: 0.35,
     GRAVITY: 0.015,
-    LANE_WIDTH: 8,  // Increased for better maneuverability
+    LANE_WIDTH: 8,
     OBSTACLE_SPAWN_DISTANCE: 50,
     MIN_OBSTACLE_DISTANCE: 35
 };
@@ -110,10 +110,11 @@ function createGround() {
 
 function createPlayer() {
     player = new THREE.Group();
-    player.position.set(0, 0, 10);
+    // Position player ABOVE ground so legs are visible
+    player.position.set(0, 1.5, 10);  // Raised 1.5 units above ground
 
     // Body proportions - BIGGER for better visibility
-    const scale = 2.5; // Scale up the entire player
+    const scale = 2.5;
     const headSize = 0.6 * scale;
     const bodyWidth = 0.35 * scale;
     const bodyHeight = 1.4 * scale;
@@ -172,10 +173,10 @@ function createPlayer() {
         player.add(shoulder);
     });
 
-    // Legs (with joints)
+    // Legs (with joints) - Starting from body, extending down
     [-1, 1].forEach(side => {
         const hip = new THREE.Group();
-        hip.position.set(side * bodyWidth * 0.5, 0, 0);
+        hip.position.set(side * bodyWidth * 0.5, 0, 0);  // At base of body
         
         const thighGeo = new THREE.CylinderGeometry(limbWidth * 1.2, limbWidth, limbLength, 8);
         const thigh = new THREE.Mesh(thighGeo, material);
@@ -194,6 +195,14 @@ function createPlayer() {
         shin.position.y = -limbLength - limbLength / 2;
         shin.castShadow = true;
         hip.add(shin);
+
+        // Feet for better visibility
+        const footGeo = new THREE.BoxGeometry(limbWidth * 1.2, limbWidth * 0.5, limbWidth * 1.5);
+        const foot = new THREE.Mesh(footGeo, material);
+        foot.position.y = -limbLength * 2 - limbWidth * 0.25;
+        foot.position.z = limbWidth * 0.3;
+        foot.castShadow = true;
+        hip.add(foot);
 
         hip.userData = { type: 'leg', side, angle: 0, speed: 0.1 };
         player.add(hip);
@@ -341,13 +350,14 @@ function updatePlayer() {
     const targetX = targetLane * CONFIG.LANE_WIDTH;
     player.position.x += (targetX - player.position.x) * 0.1;
 
-    // Jumping physics
+    // Jumping physics - adjusted for raised player position
     if (isJumping) {
         playerVelocityY -= CONFIG.GRAVITY;
         player.position.y += playerVelocityY;
 
-        if (player.position.y <= 0) {
-            player.position.y = 0;
+        // Ground is at 1.5 units (player's base height above track)
+        if (player.position.y <= 1.5) {
+            player.position.y = 1.5;
             playerVelocityY = 0;
             isJumping = false;
         }
@@ -357,13 +367,9 @@ function updatePlayer() {
     animatePlayer();
 
     // Dynamic camera follow with smooth tracking
-    // Camera follows player horizontally for better obstacle visibility
     camera.position.x += (player.position.x * 0.8 - camera.position.x) * 0.08;
-    
-    // Slight camera tilt based on lane
     camera.rotation.y += (player.position.x * 0.02 - camera.rotation.y) * 0.05;
     
-    // Camera position relative to player
     const cameraOffset = new THREE.Vector3(0, 12, 20);
     const targetCameraPos = player.position.clone().add(cameraOffset);
     camera.position.z += (targetCameraPos.z - camera.position.z) * 0.05;
@@ -555,12 +561,14 @@ function resetGame() {
     playerVelocityY = 0;
     isJumping = false;
     
-    player.position.set(0, 0, 10);
+    // Reset player to raised position
+    player.position.set(0, 1.5, 10);
     
     obstacles.forEach(obstacle => scene.remove(obstacle));
     obstacles = [];
     
     document.getElementById('score').textContent = '0';
+    document.getElementById('speed').textContent = '1.0x';  // Always 1x speed
     document.getElementById('gameOverScreen').classList.remove('show');
     document.getElementById('controlsInfo').style.display = 'flex';
 }
@@ -568,9 +576,9 @@ function resetGame() {
 function updateScore() {
     if (!isGameOver) {
         score += gameSpeed * 10;
-        gameSpeed += CONFIG.SPEED_INCREMENT;
+        // Speed stays constant at 1.0x
         document.getElementById('score').textContent = Math.floor(score);
-        document.getElementById('speed').textContent = (gameSpeed / CONFIG.SPEED).toFixed(1) + 'x';
+        document.getElementById('speed').textContent = '1.0x';
     }
 }
 
