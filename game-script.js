@@ -117,8 +117,9 @@ function createGround() {
 
 function createPlayer() {
     player = new THREE.Group();
-    // Position player ABOVE ground so legs are visible
-    player.position.set(0, 1.5, 10);  // Raised 1.5 units above ground
+    // Position player so FEET are ON the ground (not body base)
+    // Legs extend down about 4.5 units, so body needs to be 4.5 units above ground
+    player.position.set(0, 4.5, 10);
 
     // Body proportions - BIGGER for better visibility
     const scale = 2.5;
@@ -180,10 +181,10 @@ function createPlayer() {
         player.add(shoulder);
     });
 
-    // Legs (with joints) - Starting from body, extending down
+    // Legs (with joints) - Starting from body base (y=0), extending down
     [-1, 1].forEach(side => {
         const hip = new THREE.Group();
-        hip.position.set(side * bodyWidth * 0.5, 0, 0);  // At base of body
+        hip.position.set(side * bodyWidth * 0.5, 0, 0);
         
         const thighGeo = new THREE.CylinderGeometry(limbWidth * 1.2, limbWidth, limbLength, 8);
         const thigh = new THREE.Mesh(thighGeo, material);
@@ -203,7 +204,7 @@ function createPlayer() {
         shin.castShadow = true;
         hip.add(shin);
 
-        // Feet for better visibility
+        // Feet - positioned at ground level
         const footGeo = new THREE.BoxGeometry(limbWidth * 1.2, limbWidth * 0.5, limbWidth * 1.5);
         const foot = new THREE.Mesh(footGeo, material);
         foot.position.y = -limbLength * 2 - limbWidth * 0.25;
@@ -256,6 +257,12 @@ function animatePlayer() {
     // Normal running animation - realistic step-by-step
     runningStep += 0.15;
     
+    // Body bobbing up and down while running (but not when jumping)
+    if (!isJumping) {
+        const bodyBob = Math.abs(Math.sin(runningStep)) * 0.15;
+        player.position.y = 1.5 + bodyBob;
+    }
+    
     player.children.forEach(part => {
         if (part.userData.type === 'arm') {
             // Arms swing opposite to legs
@@ -279,10 +286,6 @@ function animatePlayer() {
             }
         }
     });
-
-    // Body bobbing up and down while running
-    const bodyBob = Math.abs(Math.sin(runningStep)) * 0.15;
-    player.position.y = 1.5 + bodyBob + (isJumping ? playerVelocityY * 2 : 0);
     
     // Slight body lean forward while running
     player.rotation.x = -0.1 + Math.sin(runningStep) * 0.05;
@@ -454,15 +457,15 @@ function updatePlayer() {
         playerVelocityY -= CONFIG.GRAVITY;
         player.position.y += playerVelocityY;
 
-        // Ground is at 1.5 units (player's base height above track)
-        if (player.position.y <= 1.5) {
-            player.position.y = 1.5;
+        // Ground level is at 4.5 units (feet touch ground)
+        if (player.position.y <= 4.5) {
+            player.position.y = 4.5;
             playerVelocityY = 0;
             isJumping = false;
         }
     }
 
-    // Animate limbs
+    // Animate limbs (handles bobbing when not jumping)
     animatePlayer();
 
     // Dynamic camera follow with smooth tracking
@@ -662,8 +665,8 @@ function resetGame() {
     ragdollTimer = 0;
     runningStep = 0;
     
-    // Reset player to raised position with no rotation
-    player.position.set(0, 1.5, 10);
+    // Reset player to raised position with no rotation (feet at ground level)
+    player.position.set(0, 4.5, 10);
     player.rotation.set(0, 0, 0);
     
     obstacles.forEach(obstacle => scene.remove(obstacle));
