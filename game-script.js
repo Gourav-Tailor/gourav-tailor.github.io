@@ -1,12 +1,12 @@
 // Game Configuration
 const CONFIG = {
-    SPEED: 0.15,
-    SPEED_INCREMENT: 0.002,
-    JUMP_FORCE: 0.25,
-    GRAVITY: 0.012,
-    LANE_WIDTH: 2.5,
-    OBSTACLE_SPAWN_DISTANCE: 40,
-    MIN_OBSTACLE_DISTANCE: 15
+    SPEED: 0.4,
+    SPEED_INCREMENT: 0.003,
+    JUMP_FORCE: 0.35,
+    GRAVITY: 0.015,
+    LANE_WIDTH: 4,
+    OBSTACLE_SPAWN_DISTANCE: 50,
+    MIN_OBSTACLE_DISTANCE: 20
 };
 
 // Game State
@@ -39,32 +39,37 @@ let keys = {
 function init() {
     // Scene setup
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.Fog(0x87ceeb, 50, 150);
+    scene.background = new THREE.Color(0x4a5568);
+    scene.fog = new THREE.Fog(0x4a5568, 30, 100);
 
-    // Camera setup
+    // Camera setup - Third person view with 20 degree angle
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 8, 15);
-    camera.lookAt(0, 2, 0);
-
+    camera.position.set(0, 12, 20);
+    camera.rotation.x = -Math.PI / 9; // ~20 degrees downward angle
+    
     // Renderer setup
     const canvas = document.getElementById('gameCanvas');
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    // Lighting - Atmospheric like the image
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 20, 10);
+    const directionalLight = new THREE.DirectionalLight(0xffeedd, 0.6);
+    directionalLight.position.set(5, 15, 10);
     directionalLight.castShadow = true;
     directionalLight.shadow.camera.left = -50;
     directionalLight.shadow.camera.right = 50;
     directionalLight.shadow.camera.top = 50;
     directionalLight.shadow.camera.bottom = -50;
     scene.add(directionalLight);
+
+    // Add fog effect for depth
+    const frontLight = new THREE.PointLight(0xffffff, 0.5, 50);
+    frontLight.position.set(0, 8, 0);
+    scene.add(frontLight);
 
     // Create ground
     createGround();
@@ -83,8 +88,9 @@ function init() {
 }
 
 function createGround() {
-    const groundGeometry = new THREE.PlaneGeometry(15, 200);
-    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x7ec850 });
+    // Wider ground to fill screen
+    const groundGeometry = new THREE.PlaneGeometry(40, 300);
+    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x556b2f });
     ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
@@ -93,8 +99,8 @@ function createGround() {
     // Add lane markings
     for (let i = -1; i <= 1; i++) {
         if (i === 0) continue;
-        const lineGeometry = new THREE.PlaneGeometry(0.1, 200);
-        const lineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const lineGeometry = new THREE.PlaneGeometry(0.2, 300);
+        const lineMaterial = new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.5 });
         const line = new THREE.Mesh(lineGeometry, lineMaterial);
         line.rotation.x = -Math.PI / 2;
         line.position.set(i * CONFIG.LANE_WIDTH, 0.01, 0);
@@ -106,31 +112,32 @@ function createPlayer() {
     player = new THREE.Group();
     player.position.set(0, 0, 10);
 
-    // Body proportions
-    const headSize = 0.5;
-    const bodyWidth = 0.3;
-    const bodyHeight = 1.2;
-    const limbWidth = 0.15;
-    const limbLength = 0.8;
+    // Body proportions - BIGGER for better visibility
+    const scale = 2.5; // Scale up the entire player
+    const headSize = 0.6 * scale;
+    const bodyWidth = 0.35 * scale;
+    const bodyHeight = 1.4 * scale;
+    const limbWidth = 0.18 * scale;
+    const limbLength = 0.9 * scale;
 
-    const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const material = new THREE.MeshLambertMaterial({ color: 0xe8e8e8 });
 
     // Head
-    const headGeo = new THREE.SphereGeometry(headSize, 8, 8);
+    const headGeo = new THREE.SphereGeometry(headSize, 12, 12);
     const head = new THREE.Mesh(headGeo, material);
     head.position.y = bodyHeight + headSize;
     head.castShadow = true;
     player.add(head);
 
     // Neck
-    const neckGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.3, 8);
+    const neckGeo = new THREE.CylinderGeometry(0.12 * scale, 0.12 * scale, 0.35 * scale, 8);
     const neck = new THREE.Mesh(neckGeo, material);
-    neck.position.y = bodyHeight + 0.15;
+    neck.position.y = bodyHeight + 0.18 * scale;
     neck.castShadow = true;
     player.add(neck);
 
     // Spine/Body
-    const spineGeo = new THREE.CylinderGeometry(bodyWidth, bodyWidth * 0.8, bodyHeight, 8);
+    const spineGeo = new THREE.CylinderGeometry(bodyWidth, bodyWidth * 0.8, bodyHeight, 10);
     const spine = new THREE.Mesh(spineGeo, material);
     spine.position.y = bodyHeight / 2;
     spine.castShadow = true;
@@ -139,7 +146,7 @@ function createPlayer() {
     // Arms (with joints)
     [-1, 1].forEach(side => {
         const shoulder = new THREE.Group();
-        shoulder.position.set(side * (bodyWidth + 0.1), bodyHeight * 0.8, 0);
+        shoulder.position.set(side * (bodyWidth + 0.15 * scale), bodyHeight * 0.8, 0);
         
         const upperArmGeo = new THREE.CylinderGeometry(limbWidth, limbWidth * 0.8, limbLength, 8);
         const upperArm = new THREE.Mesh(upperArmGeo, material);
@@ -161,7 +168,7 @@ function createPlayer() {
         foreArm.castShadow = true;
         shoulder.add(foreArm);
 
-        shoulder.userData = { type: 'arm', side, angle: 0, speed: 0.05 };
+        shoulder.userData = { type: 'arm', side, angle: 0, speed: 0.06 };
         player.add(shoulder);
     });
 
@@ -188,7 +195,7 @@ function createPlayer() {
         shin.castShadow = true;
         hip.add(shin);
 
-        hip.userData = { type: 'leg', side, angle: 0, speed: 0.08 };
+        hip.userData = { type: 'leg', side, angle: 0, speed: 0.1 };
         player.add(hip);
     });
 
@@ -222,21 +229,38 @@ function createObstacle(z) {
     const obstacle = new THREE.Group();
     obstacle.position.set(lane * CONFIG.LANE_WIDTH, 0, z);
     
-    let geometry, height;
+    let geometry, height, width, depth;
     if (type === 'tall') {
-        height = 3;
-        geometry = new THREE.BoxGeometry(1.5, height, 1.5);
+        // Large imposing blocks like in the image
+        height = 6;
+        width = 3.5;
+        depth = 3;
+        geometry = new THREE.BoxGeometry(width, height, depth);
     } else {
-        height = 1;
-        geometry = new THREE.BoxGeometry(2, height, 1);
+        // Low walls to jump over
+        height = 2;
+        width = 3.5;
+        depth = 2;
+        geometry = new THREE.BoxGeometry(width, height, depth);
     }
     
-    const material = new THREE.MeshLambertMaterial({ color: 0xff6b6b });
+    const material = new THREE.MeshLambertMaterial({ 
+        color: type === 'tall' ? 0x8b4513 : 0xa0522d,
+        emissive: 0x331100,
+        emissiveIntensity: 0.2
+    });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.y = height / 2;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     obstacle.add(mesh);
+    
+    // Add some detail/texture
+    const edgeGeo = new THREE.EdgesGeometry(geometry);
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+    const edges = new THREE.LineSegments(edgeGeo, edgeMat);
+    edges.position.y = height / 2;
+    obstacle.add(edges);
     
     obstacle.userData = { type, lane, height };
     obstacles.push(obstacle);
@@ -304,8 +328,17 @@ function updatePlayer() {
     // Animate limbs
     animatePlayer();
 
-    // Camera follow
-    camera.position.x += (player.position.x - camera.position.x) * 0.05;
+    // Dynamic camera follow with smooth tracking
+    // Camera follows player horizontally for better obstacle visibility
+    camera.position.x += (player.position.x * 0.8 - camera.position.x) * 0.08;
+    
+    // Slight camera tilt based on lane
+    camera.rotation.y += (player.position.x * 0.02 - camera.rotation.y) * 0.05;
+    
+    // Camera position relative to player
+    const cameraOffset = new THREE.Vector3(0, 12, 20);
+    const targetCameraPos = player.position.clone().add(cameraOffset);
+    camera.position.z += (targetCameraPos.z - camera.position.z) * 0.05;
 }
 
 function handleInput() {
