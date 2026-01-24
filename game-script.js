@@ -1,9 +1,9 @@
 // Game Configuration
 const CONFIG = {
     SPEED: 0.4,
-    SPEED_INCREMENT: 0,  // No speed increase - constant speed
-    JUMP_FORCE: 0.55,
-    GRAVITY: 0.018,
+    SPEED_INCREMENT: 0,
+    JUMP_FORCE: 0.55,  // Increased for higher jumps
+    GRAVITY: 0.015,
     LANE_WIDTH: 8,
     OBSTACLE_SPAWN_DISTANCE: 50,
     MIN_OBSTACLE_DISTANCE: 35
@@ -17,11 +17,17 @@ let gameSpeed = CONFIG.SPEED;
 let isGameOver = false;
 let playerVelocityY = 0;
 let isJumping = false;
-let currentLane = 0; // -1 (left), 0 (center), 1 (right)
+let currentLane = 0;
 let targetLane = 0;
 let lastObstacleZ = 0;
 let gamesPlayed = 0;
-const PLAYER_GROUND_Y = 2.2; // feet exactly touch ground
+
+// Running animation state
+let runningStep = 0;
+let isRagdoll = false;
+let ragdollTimer = 0;
+let ragdollRotation = { x: 0, y: 0, z: 0 };
+let ragdollVelocity = { x: 0, y: 0, z: 0 };
 
 // AI State
 let aiEnabled = false;
@@ -112,7 +118,7 @@ function createGround() {
 function createPlayer() {
     player = new THREE.Group();
     // Position player ABOVE ground so legs are visible
-    player.position.set(0, PLAYER_GROUND_Y, 10);
+    player.position.set(0, 1.5, 10);  // Raised 1.5 units above ground
 
     // Body proportions - BIGGER for better visibility
     const scale = 2.5;
@@ -198,7 +204,7 @@ function createPlayer() {
         hip.add(shin);
 
         // Feet for better visibility
-        const footGeo = new THREE.BoxGeometry(limbWidth * 1.2, limbWidth * 0.5, limbWidth * 4);
+        const footGeo = new THREE.BoxGeometry(limbWidth * 1.2, limbWidth * 0.5, limbWidth * 1.5);
         const foot = new THREE.Mesh(footGeo, material);
         foot.position.y = -limbLength * 2 - limbWidth * 0.25;
         foot.position.z = limbWidth * 0.3;
@@ -213,35 +219,77 @@ function createPlayer() {
 }
 
 function animatePlayer() {
-    if (isJumping) return; // stop run animation in air
-
-    const speed = 0.18;
-    const time = Date.now() * 0.01;
-
-    player.children.forEach(part => {
-        if (part.userData.type === 'leg') {
-            const phase = part.userData.side === 1 ? 0 : Math.PI;
-
-            // Forward/back step
-            part.rotation.x = Math.sin(time * speed + phase) * 0.8;
-
-            // Small hip up/down → walking feel
-            part.position.y = Math.max(
-                Math.sin(time * speed + phase) * 0.2,
-                -0.1
-            );
+    if (isRagdoll) {
+        // Ragdoll physics - tumbling animation
+        player.rotation.x += ragdollRotation.x;
+        player.rotation.y += ragdollRotation.y;
+        player.rotation.z += ragdollRotation.z;
+        
+        // Apply velocity
+        player.position.x += ragdollVelocity.x;
+        player.position.y += ragdollVelocity.y;
+        
+        // Gravity on ragdoll
+        ragdollVelocity.y -= 0.02;
+        if (player.position.y <= 1.5) {
+            player.position.y = 1.5;
+            ragdollVelocity.y = 0;
+            
+            // Slow down rotation
+            ragdollRotation.x *= 0.9;
+            ragdollRotation.y *= 0.9;
+            ragdollRotation.z *= 0.9;
         }
-
+        
+        // Recover from ragdoll after time
+        ragdollTimer--;
+        if (ragdollTimer <= 0) {
+            isRagdoll = false;
+            // Reset rotations
+            player.rotation.x = 0;
+            player.rotation.y = 0;
+            player.rotation.z = 0;
+        }
+        return;
+    }
+    
+    // Normal running animation - realistic step-by-step
+    runningStep += 0.15;
+    
+    player.children.forEach(part => {
         if (part.userData.type === 'arm') {
-            const phase = part.userData.side === 1 ? Math.PI : 0;
-            part.rotation.x = Math.sin(time * speed + phase) * 0.6;
+            // Arms swing opposite to legs
+            const armSwing = Math.sin(runningStep + (part.userData.side === 1 ? 0 : Math.PI)) * 0.6;
+            part.rotation.x = armSwing;
+            part.rotation.z = part.userData.side * (0.15 + Math.cos(runningStep) * 0.1);
+        } else if (part.userData.type === 'leg') {
+            // Legs alternate in walking motion
+            const legSwing = Math.sin(runningStep + (part.userData.side === 1 ? Math.PI : 0)) * 0.7;
+            part.rotation.x = legSwing;
+            
+            // Knee bending during walk cycle
+            const knee = part.children.find(child => child.geometry && child.geometry.type === 'SphereGeometry');
+            if (knee) {
+                const bendAmount = Math.max(0, legSwing) * 0.5;
+                part.children.forEach(child => {
+                    if (child.position.y < -0.5) {
+                        child.rotation.x = bendAmount;
+                    }
+                });
+            }
         }
     });
 
-    // Slight body bob (human gait)
-    player.position.y += Math.sin(time * speed * 2) * 0.02;
+    // Body bobbing up and down while running
+    const bodyBob = Math.abs(Math.sin(runningStep)) * 0.15;
+    player.position.y = 1.5 + bodyBob + (isJumping ? playerVelocityY * 2 : 0);
+    
+    // Slight body lean forward while running
+    player.rotation.x = -0.1 + Math.sin(runningStep) * 0.05;
+    
+    // Body twist during running
+    player.rotation.y = Math.sin(runningStep * 0.5) * 0.08;
 }
-
 
 function createObstacle(z) {
     const type = Math.random() > 0.5 ? 'tall' : 'short';
@@ -335,21 +383,22 @@ function updateObstacles() {
 }
 
 function checkCollision() {
+    if (isRagdoll) return false; // Already in ragdoll state
+    
     for (let obstacle of obstacles) {
         if (Math.abs(obstacle.position.z - player.position.z) < 3) {
-            // More lenient collision detection with margin
             const playerBox = new THREE.Box3().setFromObject(player);
             const obstacleBox = new THREE.Box3().setFromObject(obstacle);
             
-            // Add safety margin (reduce collision box size)
-            const margin = 0.5;
+            // More lenient collision when jumping
+            const margin = isJumping ? 1.0 : 0.5;
             playerBox.min.x += margin;
             playerBox.max.x -= margin;
             playerBox.min.z += margin;
             playerBox.max.z -= margin;
             
             if (playerBox.intersectsBox(obstacleBox)) {
-                gameOver();
+                triggerRagdoll(obstacle);
                 return true;
             }
         }
@@ -357,23 +406,60 @@ function checkCollision() {
     return false;
 }
 
+function triggerRagdoll(obstacle) {
+    if (isRagdoll) return;
+    
+    isRagdoll = true;
+    ragdollTimer = 60; // ~1 second recovery
+    
+    // Calculate impact direction
+    const impactDirection = player.position.x - obstacle.position.x;
+    
+    // Set tumbling rotations (like a child falling)
+    ragdollRotation.x = (Math.random() - 0.5) * 0.3;
+    ragdollRotation.y = (Math.random() - 0.5) * 0.2;
+    ragdollRotation.z = impactDirection > 0 ? 0.2 : -0.2;
+    
+    // Set velocity (knocked sideways)
+    ragdollVelocity.x = impactDirection > 0 ? 0.15 : -0.15;
+    ragdollVelocity.y = 0.2; // Small upward bounce
+    ragdollVelocity.z = 0;
+    
+    // Visual feedback - briefly flash obstacle
+    const obstacleMesh = obstacle.children[0];
+    if (obstacleMesh) {
+        const originalColor = obstacleMesh.material.color.getHex();
+        obstacleMesh.material.color.setHex(0xff0000);
+        setTimeout(() => {
+            if (obstacleMesh.material) {
+                obstacleMesh.material.color.setHex(originalColor);
+            }
+        }, 100);
+    }
+}
+
 function updatePlayer() {
+    // Can't control during ragdoll
+    if (isRagdoll) {
+        animatePlayer();
+        return;
+    }
+    
     // Lane switching (smooth transition)
     const targetX = targetLane * CONFIG.LANE_WIDTH;
     player.position.x += (targetX - player.position.x) * 0.1;
 
-    // Jumping physics - adjusted for raised player position
+    // Jumping physics - higher jumps to clear obstacles
     if (isJumping) {
         playerVelocityY -= CONFIG.GRAVITY;
         player.position.y += playerVelocityY;
 
-        // Ground is at 4 units (player's base height above track)
-        if (player.position.y <= PLAYER_GROUND_Y) {
-            player.position.y = PLAYER_GROUND_Y;
+        // Ground is at 1.5 units (player's base height above track)
+        if (player.position.y <= 1.5) {
+            player.position.y = 1.5;
             playerVelocityY = 0;
             isJumping = false;
         }
-
     }
 
     // Animate limbs
@@ -389,7 +475,7 @@ function updatePlayer() {
 }
 
 function handleInput() {
-    if (aiEnabled) return; // AI controls the player
+    if (aiEnabled || isRagdoll) return; // AI controls or in ragdoll state
 
     if (keys.left && currentLane > -1) {
         targetLane = --currentLane;
@@ -413,7 +499,7 @@ function jump() {
 }
 
 function collectTrainingData() {
-    if (obstacles.length === 0 || aiEnabled) return;
+    if (obstacles.length === 0 || aiEnabled || isRagdoll) return;
 
     const nearestObstacle = obstacles.find(obs => obs.position.z < player.position.z && 
                                                    obs.position.z > player.position.z - 20);
@@ -421,14 +507,13 @@ function collectTrainingData() {
     if (!nearestObstacle) return;
 
     const state = [
-        currentLane / 1, // Normalize to -1, 0, 1
+        currentLane / 1,
         nearestObstacle.userData.lane / 1,
-        (nearestObstacle.position.z - player.position.z) / 20, // Normalize distance
+        (nearestObstacle.position.z - player.position.z) / 20,
         nearestObstacle.userData.type === 'tall' ? 1 : 0,
         isJumping ? 1 : 0
     ];
 
-    // Determine action (0: nothing, 1: left, 2: right, 3: jump)
     let action = 0;
     if (keys.left) action = 1;
     else if (keys.right) action = 2;
@@ -436,7 +521,6 @@ function collectTrainingData() {
 
     trainingData.push({ state, action });
 
-    // Limit training data size
     if (trainingData.length > MAX_TRAINING_DATA) {
         trainingData.shift();
     }
@@ -549,6 +633,8 @@ async function updateAI() {
 }
 
 function gameOver() {
+    // Game no longer stops on collision - player continues with ragdoll recovery
+    // This function is now only called when player chooses to stop
     if (isGameOver) return;
     
     isGameOver = true;
@@ -559,7 +645,6 @@ function gameOver() {
     document.getElementById('controlsInfo').style.display = 'none';
     document.getElementById('gamesPlayed').textContent = gamesPlayed;
 
-    // Train model if we have enough data
     if (trainingData.length >= 50 && !aiEnabled) {
         setTimeout(() => trainAIModel(), 1000);
     }
@@ -573,15 +658,19 @@ function resetGame() {
     targetLane = 0;
     playerVelocityY = 0;
     isJumping = false;
+    isRagdoll = false;
+    ragdollTimer = 0;
+    runningStep = 0;
     
-    // Reset player to raised position
-    player.position.set(0, 4, 10);
+    // Reset player to raised position with no rotation
+    player.position.set(0, 1.5, 10);
+    player.rotation.set(0, 0, 0);
     
     obstacles.forEach(obstacle => scene.remove(obstacle));
     obstacles = [];
     
     document.getElementById('score').textContent = '0';
-    document.getElementById('speed').textContent = '1.0x';  // Always 1x speed
+    document.getElementById('speed').textContent = '1.0x';
     document.getElementById('gameOverScreen').classList.remove('show');
     document.getElementById('controlsInfo').style.display = 'flex';
 }
@@ -651,7 +740,7 @@ function animate() {
         updateAI();
         updatePlayer();
         updateObstacles();
-        checkCollision();
+        checkCollision(); // Now triggers ragdoll instead of game over
         updateScore();
         collectTrainingData();
     }
