@@ -4,9 +4,9 @@ const CONFIG = {
     SPEED_INCREMENT: 0.003,
     JUMP_FORCE: 0.35,
     GRAVITY: 0.015,
-    LANE_WIDTH: 4,
+    LANE_WIDTH: 8,  // Increased for better maneuverability
     OBSTACLE_SPAWN_DISTANCE: 50,
-    MIN_OBSTACLE_DISTANCE: 35  // Increased gap between obstacles (15% of view)
+    MIN_OBSTACLE_DISTANCE: 35
 };
 
 // Game State
@@ -88,15 +88,15 @@ function init() {
 }
 
 function createGround() {
-    // Wider ground to fill screen
-    const groundGeometry = new THREE.PlaneGeometry(40, 300);
+    // Wider ground to fill screen with more lane space
+    const groundGeometry = new THREE.PlaneGeometry(60, 300);
     const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x556b2f });
     ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // Add lane markings
+    // Add lane markings with better spacing
     for (let i = -1; i <= 1; i++) {
         if (i === 0) continue;
         const lineGeometry = new THREE.PlaneGeometry(0.2, 300);
@@ -229,24 +229,21 @@ function createObstacle(z) {
     const obstacle = new THREE.Group();
     obstacle.position.set(lane * CONFIG.LANE_WIDTH, 0, z);
     
-    // Calculate obstacle size based on screen width
-    // 35% of visible screen width at player distance
-    const visibleWidth = 2 * Math.tan(camera.fov * Math.PI / 360) * (camera.position.z - player.position.z) * camera.aspect;
-    const obstacleWidth = visibleWidth * 0.35; // 35% of screen width
+    // Obstacle should be narrower than lane for easy passing
+    // Leave comfortable margin (about 60% of lane width for obstacle, 40% for clearance)
+    const obstacleWidth = CONFIG.LANE_WIDTH * 0.55; // 55% of lane width
     
-    let geometry, height, width, depth;
+    let geometry, height, depth;
     if (type === 'tall') {
-        // Large imposing blocks - must dodge
-        height = obstacleWidth * 1.8; // Proportional height
-        width = obstacleWidth;
+        // Large imposing blocks - must dodge left/right
+        height = obstacleWidth * 2.2; // Tall and imposing
         depth = obstacleWidth * 0.8;
-        geometry = new THREE.BoxGeometry(width, height, depth);
+        geometry = new THREE.BoxGeometry(obstacleWidth, height, depth);
     } else {
         // Low walls to jump over
-        height = obstacleWidth * 0.6;
-        width = obstacleWidth;
+        height = obstacleWidth * 0.7;
         depth = obstacleWidth * 0.6;
-        geometry = new THREE.BoxGeometry(width, height, depth);
+        geometry = new THREE.BoxGeometry(obstacleWidth, height, depth);
     }
     
     const material = new THREE.MeshLambertMaterial({ 
@@ -267,7 +264,19 @@ function createObstacle(z) {
     edges.position.y = height / 2;
     obstacle.add(edges);
     
-    obstacle.userData = { type, lane, height, width };
+    // Add visual indicator for clearance (subtle glow on sides)
+    const glowGeo = new THREE.BoxGeometry(obstacleWidth + 0.2, height + 0.2, depth + 0.2);
+    const glowMat = new THREE.MeshBasicMaterial({ 
+        color: 0xff6600, 
+        transparent: true, 
+        opacity: 0.1,
+        wireframe: true
+    });
+    const glow = new THREE.Mesh(glowGeo, glowMat);
+    glow.position.y = height / 2;
+    obstacle.add(glow);
+    
+    obstacle.userData = { type, lane, height, width: obstacleWidth };
     obstacles.push(obstacle);
     scene.add(obstacle);
 }
@@ -305,11 +314,18 @@ function updateObstacles() {
 }
 
 function checkCollision() {
-    const playerBox = new THREE.Box3().setFromObject(player);
-    
     for (let obstacle of obstacles) {
-        if (Math.abs(obstacle.position.z - player.position.z) < 2) {
+        if (Math.abs(obstacle.position.z - player.position.z) < 3) {
+            // More lenient collision detection with margin
+            const playerBox = new THREE.Box3().setFromObject(player);
             const obstacleBox = new THREE.Box3().setFromObject(obstacle);
+            
+            // Add safety margin (reduce collision box size)
+            const margin = 0.5;
+            playerBox.min.x += margin;
+            playerBox.max.x -= margin;
+            playerBox.min.z += margin;
+            playerBox.max.z -= margin;
             
             if (playerBox.intersectsBox(obstacleBox)) {
                 gameOver();
