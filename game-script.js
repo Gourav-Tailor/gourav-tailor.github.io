@@ -6,7 +6,7 @@ const CONFIG = {
     GRAVITY: 0.015,
     LANE_WIDTH: 4,
     OBSTACLE_SPAWN_DISTANCE: 50,
-    MIN_OBSTACLE_DISTANCE: 20
+    MIN_OBSTACLE_DISTANCE: 35  // Increased gap between obstacles (15% of view)
 };
 
 // Game State
@@ -229,18 +229,23 @@ function createObstacle(z) {
     const obstacle = new THREE.Group();
     obstacle.position.set(lane * CONFIG.LANE_WIDTH, 0, z);
     
+    // Calculate obstacle size based on screen width
+    // 35% of visible screen width at player distance
+    const visibleWidth = 2 * Math.tan(camera.fov * Math.PI / 360) * (camera.position.z - player.position.z) * camera.aspect;
+    const obstacleWidth = visibleWidth * 0.35; // 35% of screen width
+    
     let geometry, height, width, depth;
     if (type === 'tall') {
-        // Large imposing blocks like in the image
-        height = 6;
-        width = 3.5;
-        depth = 3;
+        // Large imposing blocks - must dodge
+        height = obstacleWidth * 1.8; // Proportional height
+        width = obstacleWidth;
+        depth = obstacleWidth * 0.8;
         geometry = new THREE.BoxGeometry(width, height, depth);
     } else {
         // Low walls to jump over
-        height = 2;
-        width = 3.5;
-        depth = 2;
+        height = obstacleWidth * 0.6;
+        width = obstacleWidth;
+        depth = obstacleWidth * 0.6;
         geometry = new THREE.BoxGeometry(width, height, depth);
     }
     
@@ -255,14 +260,14 @@ function createObstacle(z) {
     mesh.receiveShadow = true;
     obstacle.add(mesh);
     
-    // Add some detail/texture
+    // Add some detail/texture with edge highlighting
     const edgeGeo = new THREE.EdgesGeometry(geometry);
     const edgeMat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
     const edges = new THREE.LineSegments(edgeGeo, edgeMat);
     edges.position.y = height / 2;
     obstacle.add(edges);
     
-    obstacle.userData = { type, lane, height };
+    obstacle.userData = { type, lane, height, width };
     obstacles.push(obstacle);
     scene.add(obstacle);
 }
@@ -282,12 +287,19 @@ function updateObstacles() {
         return true;
     });
 
-    // Spawn new obstacles
-    if (obstacles.length === 0 || 
-        obstacles[obstacles.length - 1].position.z > player.position.z - CONFIG.OBSTACLE_SPAWN_DISTANCE) {
+    // Spawn new obstacles with proper spacing (15% gap)
+    const shouldSpawn = obstacles.length === 0 || 
+        obstacles[obstacles.length - 1].position.z > player.position.z - CONFIG.OBSTACLE_SPAWN_DISTANCE;
+    
+    if (shouldSpawn) {
+        // Calculate spawn position with 15% screen gap
+        const visibleDepth = 2 * Math.tan(camera.fov * Math.PI / 360) * (camera.position.z - player.position.z);
+        const gapDistance = visibleDepth * 0.15; // 15% of visible depth
+        
         const newZ = obstacles.length > 0 
-            ? obstacles[obstacles.length - 1].position.z - CONFIG.MIN_OBSTACLE_DISTANCE
+            ? obstacles[obstacles.length - 1].position.z - Math.max(CONFIG.MIN_OBSTACLE_DISTANCE, gapDistance)
             : player.position.z - CONFIG.OBSTACLE_SPAWN_DISTANCE;
+        
         createObstacle(newZ);
     }
 }
