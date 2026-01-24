@@ -1,273 +1,663 @@
-// ========================== CONFIG ==========================
+// Game Configuration
 const CONFIG = {
     SPEED: 0.4,
+    SPEED_INCREMENT: 0,  // No speed increase - constant speed
     JUMP_FORCE: 0.55,
     GRAVITY: 0.018,
     LANE_WIDTH: 8,
-    OBSTACLE_SPAWN_DISTANCE: 45,
+    OBSTACLE_SPAWN_DISTANCE: 50,
     MIN_OBSTACLE_DISTANCE: 35
 };
 
-const GROUND_Y = 0;
-const PLAYER_FOOT_OFFSET = 1.95;
-
-// ========================== RL ==========================
-let policyModel;
-let episode = [];
-const GAMMA = 0.99;
-const EPSILON = 0.1;
-
-// ========================== STATE ==========================
-let scene, camera, renderer;
-let player, ground;
+// Game State
+let scene, camera, renderer, player, ground;
 let obstacles = [];
-
+let score = 0;
+let gameSpeed = CONFIG.SPEED;
+let isGameOver = false;
 let playerVelocityY = 0;
 let isJumping = false;
-let currentLane = 0;
+let currentLane = 0; // -1 (left), 0 (center), 1 (right)
+let targetLane = 0;
+let lastObstacleZ = 0;
+let gamesPlayed = 0;
+const PLAYER_GROUND_Y = 2.2; // feet exactly touch ground
 
-const PLAYER_STATE = {
-    RUNNING: 'running',
-    FALLING: 'falling',
-    RECOVERING: 'recovering'
+// AI State
+let aiEnabled = false;
+let aiModel = null;
+let trainingData = [];
+const MAX_TRAINING_DATA = 1000;
+
+// Input State
+let keys = {
+    left: false,
+    right: false,
+    space: false
 };
-let playerState = PLAYER_STATE.RUNNING;
-let fallTimer = 0;
 
-// ========================== INIT ==========================
-init();
+// Initialize Game
 function init() {
+    // Scene setup
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x4a5568);
-    scene.fog = new THREE.Fog(0x4a5568, 30, 120);
+    scene.fog = new THREE.Fog(0x4a5568, 30, 100);
 
-    camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 500);
+    // Camera setup - Third person view with 20 degree angle
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 12, 20);
-    camera.rotation.x = -Math.PI / 9;
-
-    renderer = new THREE.WebGLRenderer({ canvas: gameCanvas, antialias: true });
-    renderer.setSize(innerWidth, innerHeight);
+    camera.rotation.x = -Math.PI / 9; // ~20 degrees downward angle
+    
+    // Renderer setup
+    const canvas = document.getElementById('gameCanvas');
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const dir = new THREE.DirectionalLight(0xffeedd, 0.6);
-    dir.position.set(5, 15, 10);
-    dir.castShadow = true;
-    scene.add(dir);
+    // Lighting - Atmospheric like the image
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
 
+    const directionalLight = new THREE.DirectionalLight(0xffeedd, 0.6);
+    directionalLight.position.set(5, 15, 10);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.camera.left = -50;
+    directionalLight.shadow.camera.right = 50;
+    directionalLight.shadow.camera.top = 50;
+    directionalLight.shadow.camera.bottom = -50;
+    scene.add(directionalLight);
+
+    // Add fog effect for depth
+    const frontLight = new THREE.PointLight(0xffffff, 0.5, 50);
+    frontLight.position.set(0, 8, 0);
+    scene.add(frontLight);
+
+    // Create ground
     createGround();
+
+    // Create player
     createPlayer();
 
-    policyModel = createPolicyNetwork();
+    // Event listeners
+    setupEventListeners();
+
+    // Load AI model or create new
+    loadOrCreateAIModel();
+
+    // Start animation
     animate();
 }
 
-// ========================== ENV ==========================
 function createGround() {
-    ground = new THREE.Mesh(
-        new THREE.PlaneGeometry(60, 400),
-        new THREE.MeshLambertMaterial({ color: 0x556b2f })
-    );
+    // Wider ground to fill screen with more lane space
+    const groundGeometry = new THREE.PlaneGeometry(60, 300);
+    const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x556b2f });
+    ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
+
+    // Add lane markings with better spacing
+    for (let i = -1; i <= 1; i++) {
+        if (i === 0) continue;
+        const lineGeometry = new THREE.PlaneGeometry(0.2, 300);
+        const lineMaterial = new THREE.MeshBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.5 });
+        const line = new THREE.Mesh(lineGeometry, lineMaterial);
+        line.rotation.x = -Math.PI / 2;
+        line.position.set(i * CONFIG.LANE_WIDTH, 0.01, 0);
+        scene.add(line);
+    }
 }
 
 function createPlayer() {
     player = new THREE.Group();
-    player.position.set(0, GROUND_Y + PLAYER_FOOT_OFFSET, 10);
+    // Position player ABOVE ground so legs are visible
+    player.position.set(0, PLAYER_GROUND_Y, 10);
 
-    const mat = new THREE.MeshLambertMaterial({ color: 0xe8e8e8 });
+    // Body proportions - BIGGER for better visibility
+    const scale = 2.5;
+    const headSize = 0.6 * scale;
+    const bodyWidth = 0.35 * scale;
+    const bodyHeight = 1.4 * scale;
+    const limbWidth = 0.18 * scale;
+    const limbLength = 0.9 * scale;
 
-    const body = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.9, 0.7, 3.5, 8),
-        mat
-    );
-    body.position.y = 1.75;
-    player.add(body);
+    const material = new THREE.MeshLambertMaterial({ color: 0xe8e8e8 });
 
-    const head = new THREE.Mesh(
-        new THREE.SphereGeometry(0.8, 12, 12),
-        mat
-    );
-    head.position.y = 4;
+    // Head
+    const headGeo = new THREE.SphereGeometry(headSize, 12, 12);
+    const head = new THREE.Mesh(headGeo, material);
+    head.position.y = bodyHeight + headSize;
+    head.castShadow = true;
     player.add(head);
+
+    // Neck
+    const neckGeo = new THREE.CylinderGeometry(0.12 * scale, 0.12 * scale, 0.35 * scale, 8);
+    const neck = new THREE.Mesh(neckGeo, material);
+    neck.position.y = bodyHeight + 0.18 * scale;
+    neck.castShadow = true;
+    player.add(neck);
+
+    // Spine/Body
+    const spineGeo = new THREE.CylinderGeometry(bodyWidth, bodyWidth * 0.8, bodyHeight, 10);
+    const spine = new THREE.Mesh(spineGeo, material);
+    spine.position.y = bodyHeight / 2;
+    spine.castShadow = true;
+    player.add(spine);
+
+    // Arms (with joints)
+    [-1, 1].forEach(side => {
+        const shoulder = new THREE.Group();
+        shoulder.position.set(side * (bodyWidth + 0.15 * scale), bodyHeight * 0.8, 0);
+        
+        const upperArmGeo = new THREE.CylinderGeometry(limbWidth, limbWidth * 0.8, limbLength, 8);
+        const upperArm = new THREE.Mesh(upperArmGeo, material);
+        upperArm.position.y = -limbLength / 2;
+        upperArm.rotation.z = side * 0.1;
+        upperArm.castShadow = true;
+        shoulder.add(upperArm);
+
+        const elbowGeo = new THREE.SphereGeometry(limbWidth * 0.9, 8, 8);
+        const elbow = new THREE.Mesh(elbowGeo, material);
+        elbow.position.y = -limbLength;
+        elbow.castShadow = true;
+        shoulder.add(elbow);
+
+        const foreArmGeo = new THREE.CylinderGeometry(limbWidth * 0.8, limbWidth * 0.6, limbLength * 0.8, 8);
+        const foreArm = new THREE.Mesh(foreArmGeo, material);
+        foreArm.position.y = -limbLength - limbLength * 0.4;
+        foreArm.rotation.z = -side * 0.2;
+        foreArm.castShadow = true;
+        shoulder.add(foreArm);
+
+        shoulder.userData = { type: 'arm', side, angle: 0, speed: 0.06 };
+        player.add(shoulder);
+    });
+
+    // Legs (with joints) - Starting from body, extending down
+    [-1, 1].forEach(side => {
+        const hip = new THREE.Group();
+        hip.position.set(side * bodyWidth * 0.5, 0, 0);  // At base of body
+        
+        const thighGeo = new THREE.CylinderGeometry(limbWidth * 1.2, limbWidth, limbLength, 8);
+        const thigh = new THREE.Mesh(thighGeo, material);
+        thigh.position.y = -limbLength / 2;
+        thigh.castShadow = true;
+        hip.add(thigh);
+
+        const kneeGeo = new THREE.SphereGeometry(limbWidth, 8, 8);
+        const knee = new THREE.Mesh(kneeGeo, material);
+        knee.position.y = -limbLength;
+        knee.castShadow = true;
+        hip.add(knee);
+
+        const shinGeo = new THREE.CylinderGeometry(limbWidth, limbWidth * 0.8, limbLength, 8);
+        const shin = new THREE.Mesh(shinGeo, material);
+        shin.position.y = -limbLength - limbLength / 2;
+        shin.castShadow = true;
+        hip.add(shin);
+
+        // Feet for better visibility
+        const footGeo = new THREE.BoxGeometry(limbWidth * 1.2, limbWidth * 0.5, limbWidth * 4);
+        const foot = new THREE.Mesh(footGeo, material);
+        foot.position.y = -limbLength * 2 - limbWidth * 0.25;
+        foot.position.z = limbWidth * 0.3;
+        foot.castShadow = true;
+        hip.add(foot);
+
+        hip.userData = { type: 'leg', side, angle: 0, speed: 0.1 };
+        player.add(hip);
+    });
 
     scene.add(player);
 }
 
-// ========================== OBSTACLES ==========================
+function animatePlayer() {
+    if (isJumping) return; // stop run animation in air
+
+    const speed = 0.18;
+    const time = Date.now() * 0.01;
+
+    player.children.forEach(part => {
+        if (part.userData.type === 'leg') {
+            const phase = part.userData.side === 1 ? 0 : Math.PI;
+
+            // Forward/back step
+            part.rotation.x = Math.sin(time * speed + phase) * 0.8;
+
+            // Small hip up/down → walking feel
+            part.position.y = Math.max(
+                Math.sin(time * speed + phase) * 0.2,
+                -0.1
+            );
+        }
+
+        if (part.userData.type === 'arm') {
+            const phase = part.userData.side === 1 ? Math.PI : 0;
+            part.rotation.x = Math.sin(time * speed + phase) * 0.6;
+        }
+    });
+
+    // Slight body bob (human gait)
+    player.position.y += Math.sin(time * speed * 2) * 0.02;
+}
+
+
 function createObstacle(z) {
-    const lane = Math.floor(Math.random() * 3) - 1;
-    const tall = Math.random() > 0.5;
-
-    const obs = new THREE.Mesh(
-        new THREE.BoxGeometry(5, tall ? 8 : 4, 4),
-        new THREE.MeshLambertMaterial({ color: tall ? 0x8b4513 : 0xa0522d })
-    );
-
-    obs.position.set(lane * CONFIG.LANE_WIDTH, tall ? 4 : 2, z);
-    obs.userData = { lane, tall };
-    obs.castShadow = true;
-
-    obstacles.push(obs);
-    scene.add(obs);
+    const type = Math.random() > 0.5 ? 'tall' : 'short';
+    const lane = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+    
+    const obstacle = new THREE.Group();
+    obstacle.position.set(lane * CONFIG.LANE_WIDTH, 0, z);
+    
+    // Obstacle should be narrower than lane for easy passing
+    // Leave comfortable margin (about 60% of lane width for obstacle, 40% for clearance)
+    const obstacleWidth = CONFIG.LANE_WIDTH * 0.55; // 55% of lane width
+    
+    let geometry, height, depth;
+    if (type === 'tall') {
+        // Large imposing blocks - must dodge left/right
+        height = obstacleWidth * 2.2; // Tall and imposing
+        depth = obstacleWidth * 0.8;
+        geometry = new THREE.BoxGeometry(obstacleWidth, height, depth);
+    } else {
+        // Low walls to jump over
+        height = obstacleWidth * 0.7;
+        depth = obstacleWidth * 0.6;
+        geometry = new THREE.BoxGeometry(obstacleWidth, height, depth);
+    }
+    
+    const material = new THREE.MeshLambertMaterial({ 
+        color: type === 'tall' ? 0x8b4513 : 0xa0522d,
+        emissive: 0x331100,
+        emissiveIntensity: 0.2
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.y = height / 2;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    obstacle.add(mesh);
+    
+    // Add some detail/texture with edge highlighting
+    const edgeGeo = new THREE.EdgesGeometry(geometry);
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+    const edges = new THREE.LineSegments(edgeGeo, edgeMat);
+    edges.position.y = height / 2;
+    obstacle.add(edges);
+    
+    // Add visual indicator for clearance (subtle glow on sides)
+    const glowGeo = new THREE.BoxGeometry(obstacleWidth + 0.2, height + 0.2, depth + 0.2);
+    const glowMat = new THREE.MeshBasicMaterial({ 
+        color: 0xff6600, 
+        transparent: true, 
+        opacity: 0.1,
+        wireframe: true
+    });
+    const glow = new THREE.Mesh(glowGeo, glowMat);
+    glow.position.y = height / 2;
+    obstacle.add(glow);
+    
+    obstacle.userData = { type, lane, height, width: obstacleWidth };
+    obstacles.push(obstacle);
+    scene.add(obstacle);
 }
 
 function updateObstacles() {
-    obstacles.forEach(o => o.position.z += CONFIG.SPEED);
+    // Move obstacles
+    obstacles.forEach(obstacle => {
+        obstacle.position.z += gameSpeed;
+    });
 
-    if (
-        obstacles.length === 0 ||
-        obstacles[obstacles.length - 1].position.z >
-            player.position.z - CONFIG.OBSTACLE_SPAWN_DISTANCE
-    ) {
-        createObstacle(player.position.z - CONFIG.MIN_OBSTACLE_DISTANCE);
-    }
-
-    obstacles = obstacles.filter(o => {
-        if (o.position.z > player.position.z + 5) {
-            scene.remove(o);
+    // Remove passed obstacles
+    obstacles = obstacles.filter(obstacle => {
+        if (obstacle.position.z > player.position.z + 5) {
+            scene.remove(obstacle);
             return false;
         }
         return true;
     });
+
+    // Spawn new obstacles with proper spacing (15% gap)
+    const shouldSpawn = obstacles.length === 0 || 
+        obstacles[obstacles.length - 1].position.z > player.position.z - CONFIG.OBSTACLE_SPAWN_DISTANCE;
+    
+    if (shouldSpawn) {
+        // Calculate spawn position with 15% screen gap
+        const visibleDepth = 2 * Math.tan(camera.fov * Math.PI / 360) * (camera.position.z - player.position.z);
+        const gapDistance = visibleDepth * 0.15; // 15% of visible depth
+        
+        const newZ = obstacles.length > 0 
+            ? obstacles[obstacles.length - 1].position.z - Math.max(CONFIG.MIN_OBSTACLE_DISTANCE, gapDistance)
+            : player.position.z - CONFIG.OBSTACLE_SPAWN_DISTANCE;
+        
+        createObstacle(newZ);
+    }
 }
 
-// ========================== RL CORE ==========================
-function createPolicyNetwork() {
-    const model = tf.sequential();
-    model.add(tf.layers.dense({ inputShape: [5], units: 32, activation: 'relu' }));
-    model.add(tf.layers.dense({ units: 32, activation: 'relu' }));
-    model.add(tf.layers.dense({ units: 4, activation: 'softmax' }));
+function checkCollision() {
+    for (let obstacle of obstacles) {
+        if (Math.abs(obstacle.position.z - player.position.z) < 3) {
+            // More lenient collision detection with margin
+            const playerBox = new THREE.Box3().setFromObject(player);
+            const obstacleBox = new THREE.Box3().setFromObject(obstacle);
+            
+            // Add safety margin (reduce collision box size)
+            const margin = 0.5;
+            playerBox.min.x += margin;
+            playerBox.max.x -= margin;
+            playerBox.min.z += margin;
+            playerBox.max.z -= margin;
+            
+            if (playerBox.intersectsBox(obstacleBox)) {
+                gameOver();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function updatePlayer() {
+    // Lane switching (smooth transition)
+    const targetX = targetLane * CONFIG.LANE_WIDTH;
+    player.position.x += (targetX - player.position.x) * 0.1;
+
+    // Jumping physics - adjusted for raised player position
+    if (isJumping) {
+        playerVelocityY -= CONFIG.GRAVITY;
+        player.position.y += playerVelocityY;
+
+        // Ground is at 4 units (player's base height above track)
+        if (player.position.y <= PLAYER_GROUND_Y) {
+            player.position.y = PLAYER_GROUND_Y;
+            playerVelocityY = 0;
+            isJumping = false;
+        }
+
+    }
+
+    // Animate limbs
+    animatePlayer();
+
+    // Dynamic camera follow with smooth tracking
+    camera.position.x += (player.position.x * 0.8 - camera.position.x) * 0.08;
+    camera.rotation.y += (player.position.x * 0.02 - camera.rotation.y) * 0.05;
+    
+    const cameraOffset = new THREE.Vector3(0, 12, 20);
+    const targetCameraPos = player.position.clone().add(cameraOffset);
+    camera.position.z += (targetCameraPos.z - camera.position.z) * 0.05;
+}
+
+function handleInput() {
+    if (aiEnabled) return; // AI controls the player
+
+    if (keys.left && currentLane > -1) {
+        targetLane = --currentLane;
+    }
+    if (keys.right && currentLane < 1) {
+        targetLane = ++currentLane;
+    }
+    if (keys.space && !isJumping) {
+        jump();
+    }
+
+    // Reset key states
+    keys.left = keys.right = keys.space = false;
+}
+
+function jump() {
+    if (!isJumping) {
+        isJumping = true;
+        playerVelocityY = CONFIG.JUMP_FORCE;
+    }
+}
+
+function collectTrainingData() {
+    if (obstacles.length === 0 || aiEnabled) return;
+
+    const nearestObstacle = obstacles.find(obs => obs.position.z < player.position.z && 
+                                                   obs.position.z > player.position.z - 20);
+    
+    if (!nearestObstacle) return;
+
+    const state = [
+        currentLane / 1, // Normalize to -1, 0, 1
+        nearestObstacle.userData.lane / 1,
+        (nearestObstacle.position.z - player.position.z) / 20, // Normalize distance
+        nearestObstacle.userData.type === 'tall' ? 1 : 0,
+        isJumping ? 1 : 0
+    ];
+
+    // Determine action (0: nothing, 1: left, 2: right, 3: jump)
+    let action = 0;
+    if (keys.left) action = 1;
+    else if (keys.right) action = 2;
+    else if (keys.space) action = 3;
+
+    trainingData.push({ state, action });
+
+    // Limit training data size
+    if (trainingData.length > MAX_TRAINING_DATA) {
+        trainingData.shift();
+    }
+
+    updateTrainingUI();
+}
+
+async function loadOrCreateAIModel() {
+    try {
+        aiModel = await tf.loadLayersModel('indexeddb://runner-ai-model');
+        document.getElementById('modelStatus').textContent = 'Loaded';
+    } catch (e) {
+        aiModel = createNeuralNetwork();
+        document.getElementById('modelStatus').textContent = 'Not Trained';
+    }
+}
+
+function createNeuralNetwork() {
+    const model = tf.sequential({
+        layers: [
+            tf.layers.dense({ inputShape: [5], units: 24, activation: 'relu' }),
+            tf.layers.dense({ units: 16, activation: 'relu' }),
+            tf.layers.dense({ units: 4, activation: 'softmax' }) // 4 actions
+        ]
+    });
 
     model.compile({
-        optimizer: tf.train.adam(0.0005),
-        loss: policyLoss
+        optimizer: tf.train.adam(0.001),
+        loss: 'sparseCategoricalCrossentropy',
+        metrics: ['accuracy']
     });
 
     return model;
 }
 
-function policyLoss(yTrue, yPred) {
-    const logProb = tf.sum(tf.mul(yTrue, tf.log(yPred + 1e-10)), 1);
-    return tf.neg(tf.mean(logProb));
-}
-
-function selectAction(state) {
-    if (Math.random() < EPSILON) {
-        return Math.floor(Math.random() * 4);
+async function trainAIModel() {
+    if (trainingData.length < 50) {
+        alert('Need at least 50 training samples. Play more games!');
+        return;
     }
 
-    const probs = policyModel.predict(tf.tensor2d([state])).dataSync();
-    let r = Math.random(), sum = 0;
-    for (let i = 0; i < probs.length; i++) {
-        sum += probs[i];
-        if (r < sum) return i;
-    }
-    return 0;
-}
+    document.getElementById('modelStatus').textContent = 'Training...';
 
-function storeStep(state, action, reward) {
-    episode.push({ state, action, reward });
-}
-
-async function trainPolicy() {
-    let G = 0;
-    const returns = episode.map(step => {
-        G = step.reward + GAMMA * G;
-        return G;
-    }).reverse();
-
-    const states = episode.map(e => e.state);
-    const actions = episode.map(e => {
-        const a = [0, 0, 0, 0];
-        a[e.action] = 1;
-        return a;
-    });
+    const states = trainingData.map(d => d.state);
+    const actions = trainingData.map(d => d.action);
 
     const xs = tf.tensor2d(states);
-    const ys = tf.tensor2d(actions);
+    const ys = tf.tensor1d(actions, 'int32');
 
-    await policyModel.fit(xs, ys, {
-        sampleWeight: returns,
-        epochs: 1
+    await aiModel.fit(xs, ys, {
+        epochs: 20,
+        batchSize: 32,
+        shuffle: true,
+        callbacks: {
+            onEpochEnd: (epoch, logs) => {
+                console.log(`Epoch ${epoch}: loss = ${logs.loss.toFixed(4)}`);
+            }
+        }
     });
 
     xs.dispose();
     ys.dispose();
-    episode = [];
+
+    // Save model
+    await aiModel.save('indexeddb://runner-ai-model');
+    document.getElementById('modelStatus').textContent = 'Trained';
 }
 
-// ========================== GAME LOOP ==========================
+async function getAIAction() {
+    if (!aiModel || obstacles.length === 0) return 0;
+
+    const nearestObstacle = obstacles.find(obs => obs.position.z < player.position.z && 
+                                                   obs.position.z > player.position.z - 20);
+    
+    if (!nearestObstacle) return 0;
+
+    const state = tf.tensor2d([[
+        currentLane / 1,
+        nearestObstacle.userData.lane / 1,
+        (nearestObstacle.position.z - player.position.z) / 20,
+        nearestObstacle.userData.type === 'tall' ? 1 : 0,
+        isJumping ? 1 : 0
+    ]]);
+
+    const prediction = aiModel.predict(state);
+    const action = (await prediction.argMax(-1).data())[0];
+
+    state.dispose();
+    prediction.dispose();
+
+    return action;
+}
+
+async function updateAI() {
+    if (!aiEnabled) return;
+
+    const action = await getAIAction();
+
+    switch (action) {
+        case 1: // Left
+            if (currentLane > -1) targetLane = --currentLane;
+            break;
+        case 2: // Right
+            if (currentLane < 1) targetLane = ++currentLane;
+            break;
+        case 3: // Jump
+            if (!isJumping) jump();
+            break;
+    }
+}
+
+function gameOver() {
+    if (isGameOver) return;
+    
+    isGameOver = true;
+    gamesPlayed++;
+    
+    document.getElementById('finalScore').textContent = Math.floor(score);
+    document.getElementById('gameOverScreen').classList.add('show');
+    document.getElementById('controlsInfo').style.display = 'none';
+    document.getElementById('gamesPlayed').textContent = gamesPlayed;
+
+    // Train model if we have enough data
+    if (trainingData.length >= 50 && !aiEnabled) {
+        setTimeout(() => trainAIModel(), 1000);
+    }
+}
+
+function resetGame() {
+    isGameOver = false;
+    score = 0;
+    gameSpeed = CONFIG.SPEED;
+    currentLane = 0;
+    targetLane = 0;
+    playerVelocityY = 0;
+    isJumping = false;
+    
+    // Reset player to raised position
+    player.position.set(0, 4, 10);
+    
+    obstacles.forEach(obstacle => scene.remove(obstacle));
+    obstacles = [];
+    
+    document.getElementById('score').textContent = '0';
+    document.getElementById('speed').textContent = '1.0x';  // Always 1x speed
+    document.getElementById('gameOverScreen').classList.remove('show');
+    document.getElementById('controlsInfo').style.display = 'flex';
+}
+
+function updateScore() {
+    if (!isGameOver) {
+        score += gameSpeed * 10;
+        // Speed stays constant at 1.0x
+        document.getElementById('score').textContent = Math.floor(score);
+        document.getElementById('speed').textContent = '1.0x';
+    }
+}
+
+function updateTrainingUI() {
+    document.getElementById('trainingSize').textContent = trainingData.length;
+}
+
+function setupEventListeners() {
+    // Keyboard
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowLeft') keys.left = true;
+        if (e.code === 'ArrowRight') keys.right = true;
+        if (e.code === 'Space') {
+            e.preventDefault();
+            keys.space = true;
+        }
+    });
+
+    // UI Buttons
+    document.getElementById('restartBtn').addEventListener('click', resetGame);
+    document.getElementById('backBtn').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+
+    document.getElementById('aiToggle').addEventListener('click', async () => {
+        aiEnabled = !aiEnabled;
+        const btn = document.getElementById('aiToggle');
+        const text = btn.querySelector('.ai-text');
+        
+        if (aiEnabled) {
+            if (trainingData.length < 50) {
+                alert('AI needs training data! Play some games first.');
+                aiEnabled = false;
+                return;
+            }
+            btn.classList.add('active');
+            text.textContent = 'AI: ON';
+        } else {
+            btn.classList.remove('active');
+            text.textContent = 'AI: OFF';
+        }
+    });
+
+    // Window resize
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+}
+
 function animate() {
     requestAnimationFrame(animate);
 
-    updateObstacles();
-
-    const obs = obstacles[0];
-
-    // ---------- STATE ----------
-    const state = [
-        currentLane,
-        obs ? obs.userData.lane : 0,
-        obs ? (obs.position.z - player.position.z) / CONFIG.MIN_OBSTACLE_DISTANCE : -1,
-        obs ? (obs.userData.tall ? 1 : 0) : 0,
-        isJumping ? 1 : 0
-    ];
-
-    // ---------- ACTION ----------
-    const action = selectAction(state);
-
-    if (playerState === PLAYER_STATE.RUNNING) {
-        if (action === 1 && currentLane > -1) currentLane--;
-        if (action === 2 && currentLane < 1) currentLane++;
-        if (action === 3 && !isJumping) {
-            isJumping = true;
-            playerVelocityY = CONFIG.JUMP_FORCE;
-        }
+    if (!isGameOver) {
+        handleInput();
+        updateAI();
+        updatePlayer();
+        updateObstacles();
+        checkCollision();
+        updateScore();
+        collectTrainingData();
     }
-
-    // ---------- MOVEMENT ----------
-    player.position.x += (currentLane * CONFIG.LANE_WIDTH - player.position.x) * 0.12;
-
-    if (isJumping) {
-        playerVelocityY -= CONFIG.GRAVITY;
-        player.position.y += playerVelocityY;
-
-        if (player.position.y <= GROUND_Y + PLAYER_FOOT_OFFSET) {
-            player.position.y = GROUND_Y + PLAYER_FOOT_OFFSET;
-            isJumping = false;
-        }
-    }
-
-    // ---------- COLLISION ----------
-    let reward = -0.01;
-
-    if (obs) {
-        const hit =
-            Math.abs(obs.position.z - player.position.z) < 1.5 &&
-            Math.abs(obs.position.x - player.position.x) < 2 &&
-            player.position.y < 3;
-
-        if (hit) {
-            reward = -2;
-            trainPolicy();
-            obstacles.forEach(o => scene.remove(o));
-            obstacles = [];
-        }
-
-        if (obs.position.z > player.position.z + 2) {
-            reward = 1;
-            scene.remove(obs);
-            obstacles.shift();
-        }
-    }
-
-    storeStep(state, action, reward);
-
-    camera.position.x += (player.position.x * 0.8 - camera.position.x) * 0.08;
-    camera.position.z += ((player.position.z + 20) - camera.position.z) * 0.05;
 
     renderer.render(scene, camera);
 }
+
+// Start game
+init();
