@@ -111,7 +111,7 @@ function createGround() {
 function createPlayer() {
     player = new THREE.Group();
     // Position player ABOVE ground so legs are visible
-    player.position.set(0, 1.5, 10);  // Raised 1.5 units above ground
+    player.position.set(0, 3, 10);  // Raised 1.5 units above ground
 
     // Body proportions - BIGGER for better visibility
     const scale = 2.5;
