@@ -14,7 +14,6 @@ let scene, camera, renderer, player, ground;
 let obstacles = [];
 let score = 0;
 let gameSpeed = CONFIG.SPEED;
-let isGameOver = false;
 let playerVelocityY = 0;
 let isJumping = false;
 let currentLane = 0; // -1 (left), 0 (center), 1 (right)
@@ -22,6 +21,20 @@ let targetLane = 0;
 let lastObstacleZ = 0;
 let gamesPlayed = 0;
 const PLAYER_GROUND_Y = 2.2; // feet exactly touch ground
+const GROUND_Y = 0;
+const PLAYER_FOOT_OFFSET = 1.95; // distance from hip to sole
+let speedMultiplier = 1;
+let targetSpeedMultiplier = 1;
+
+
+const PLAYER_STATE = {
+    RUNNING: 'running',
+    FALLING: 'falling',
+    RECOVERING: 'recovering'
+};
+
+let playerState = PLAYER_STATE.RUNNING;
+let fallTimer = 0;
 
 // AI State
 let aiEnabled = false;
@@ -349,7 +362,7 @@ function checkCollision() {
             playerBox.max.z -= margin;
             
             if (playerBox.intersectsBox(obstacleBox)) {
-                gameOver();
+                checkCollision();
                 return true;
             }
         }
@@ -358,34 +371,48 @@ function checkCollision() {
 }
 
 function updatePlayer() {
-    // Lane switching (smooth transition)
-    const targetX = targetLane * CONFIG.LANE_WIDTH;
-    player.position.x += (targetX - player.position.x) * 0.1;
 
-    // Jumping physics - adjusted for raised player position
-    if (isJumping) {
-        playerVelocityY -= CONFIG.GRAVITY;
+    if (accelerating) {
+        targetSpeedMultiplier = 1.2;
+    } else {
+        targetSpeedMultiplier = 1;
+    }
+    
+    speedMultiplier += (targetSpeedMultiplier - speedMultiplier) * 0.05;
+    gameSpeed = CONFIG.SPEED * speedMultiplier;
+    
+    if (playerState === PLAYER_STATE.FALLING) {
+        fallTimer += 1;
+
+        playerVelocityY -= CONFIG.GRAVITY * 1.2;
         player.position.y += playerVelocityY;
 
-        // Ground is at 4 units (player's base height above track)
-        if (player.position.y <= PLAYER_GROUND_Y) {
-            player.position.y = PLAYER_GROUND_Y;
+        if (player.position.y <= GROUND_Y + 0.4) {
+            player.position.y = GROUND_Y + 0.4;
             playerVelocityY = 0;
-            isJumping = false;
+            playerState = PLAYER_STATE.RECOVERING;
         }
 
+        return;
     }
 
-    // Animate limbs
-    animatePlayer();
+    if (playerState === PLAYER_STATE.RECOVERING) {
+        fallTimer += 1;
 
-    // Dynamic camera follow with smooth tracking
-    camera.position.x += (player.position.x * 0.8 - camera.position.x) * 0.08;
-    camera.rotation.y += (player.position.x * 0.02 - camera.rotation.y) * 0.05;
-    
-    const cameraOffset = new THREE.Vector3(0, 12, 20);
-    const targetCameraPos = player.position.clone().add(cameraOffset);
-    camera.position.z += (targetCameraPos.z - camera.position.z) * 0.05;
+        // Slowly stand up
+        player.rotation.x += (0 - player.rotation.x) * 0.1;
+        player.rotation.z += (0 - player.rotation.z) * 0.1;
+
+        if (fallTimer > 45) {
+            playerState = PLAYER_STATE.RUNNING;
+            player.position.y = GROUND_Y + PLAYER_FOOT_OFFSET;
+        }
+        return;
+    }
+
+    // Normal running
+    animatePlayer();
+    handleMovement();
 }
 
 function handleInput() {
@@ -548,52 +575,51 @@ async function updateAI() {
     }
 }
 
-function gameOver() {
-    if (isGameOver) return;
-    
-    isGameOver = true;
-    gamesPlayed++;
-    
-    document.getElementById('finalScore').textContent = Math.floor(score);
-    document.getElementById('gameOverScreen').classList.add('show');
-    document.getElementById('controlsInfo').style.display = 'none';
-    document.getElementById('gamesPlayed').textContent = gamesPlayed;
+function checkCollision() {
+    if (playerState !== PLAYER_STATE.RUNNING) return;
 
-    // Train model if we have enough data
-    if (trainingData.length >= 50 && !aiEnabled) {
-        setTimeout(() => trainAIModel(), 1000);
+    for (let obstacle of obstacles) {
+        if (Math.abs(obstacle.position.z - player.position.z) < 2.5) {
+            const playerBox = new THREE.Box3().setFromObject(player);
+            const obstacleBox = new THREE.Box3().setFromObject(obstacle);
+
+            if (playerBox.intersectsBox(obstacleBox)) {
+                triggerFall(obstacle);
+                return;
+            }
+        }
     }
 }
 
-function resetGame() {
-    isGameOver = false;
-    score = 0;
-    gameSpeed = CONFIG.SPEED;
-    currentLane = 0;
-    targetLane = 0;
-    playerVelocityY = 0;
-    isJumping = false;
-    
-    // Reset player to raised position
-    player.position.set(0, 4, 10);
-    
-    obstacles.forEach(obstacle => scene.remove(obstacle));
-    obstacles = [];
-    
-    document.getElementById('score').textContent = '0';
-    document.getElementById('speed').textContent = '1.0x';  // Always 1x speed
-    document.getElementById('gameOverScreen').classList.remove('show');
-    document.getElementById('controlsInfo').style.display = 'flex';
+function triggerFall(obstacle) {
+    playerState = PLAYER_STATE.FALLING;
+    fallTimer = 0;
+
+    // Knockback
+    playerVelocityY = 0.25;
+    player.rotation.x = -Math.PI / 2.2; // face plant
+    player.rotation.z = (Math.random() - 0.5) * 0.5;
+
+    // Slight sideways push away from obstacle
+    if (obstacle.userData.type === 'tall') {
+        player.rotation.x = -Math.PI / 1.8; // bigger fall
+        playerVelocityY = 0.35;
+    } else {
+        player.rotation.x = -Math.PI / 2.5; // stumble
+    }
+    targetLane = currentLane;
+    trainingData.push({
+        state: lastAIState,
+        action: lastAIAction,
+        reward: -1
+    });
+    trainingData.push({
+        state,
+        action,
+        reward: +1
+    });
 }
 
-function updateScore() {
-    if (!isGameOver) {
-        score += gameSpeed * 10;
-        // Speed stays constant at 1.0x
-        document.getElementById('score').textContent = Math.floor(score);
-        document.getElementById('speed').textContent = '1.0x';
-    }
-}
 
 function updateTrainingUI() {
     document.getElementById('trainingSize').textContent = trainingData.length;
@@ -602,6 +628,8 @@ function updateTrainingUI() {
 function setupEventListeners() {
     // Keyboard
     window.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowUp') accelerating = true;
+        if (e.code === 'ArrowUp' && e.type === 'keyup') accelerating = false;
         if (e.code === 'ArrowLeft') keys.left = true;
         if (e.code === 'ArrowRight') keys.right = true;
         if (e.code === 'Space') {
@@ -645,16 +673,6 @@ function setupEventListeners() {
 
 function animate() {
     requestAnimationFrame(animate);
-
-    if (!isGameOver) {
-        handleInput();
-        updateAI();
-        updatePlayer();
-        updateObstacles();
-        checkCollision();
-        updateScore();
-        collectTrainingData();
-    }
 
     renderer.render(scene, camera);
 }
