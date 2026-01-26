@@ -3,69 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Runner Game - Gourav Tailor</title>
+    <title>Conway's Game of Life - RL Training</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="stylesheet" href="game-styles.css">
 </head>
 <body>
     <div class="game-container">
-        <!-- Game UI -->
-        <div class="game-ui">
-            <div class="ui-top">
-                <div class="score-container">
-                    <div class="score-label">Score</div>
-                    <div class="score-value" id="score">0</div>
-                </div>
-                <div class="stats-container">
-                    <div class="stat-item">
-                        <span class="stat-label">Speed:</span>
-                        <span class="stat-value" id="speed">1.0x</span>
+        <!-- Header -->
+        <header class="game-header">
+            <h1>🧬 Conway's Game of Life - RL Agent</h1>
+            <button class="back-btn" id="backBtn">← Back to Portfolio</button>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="panel-section">
+                    <h3>🎯 Target Pattern</h3>
+                    <div class="pattern-selector">
+                        <button class="pattern-btn active" data-pattern="block">Block</button>
+                        <button class="pattern-btn" data-pattern="blinker">Blinker</button>
+                        <button class="pattern-btn" data-pattern="glider">Glider</button>
+                        <button class="pattern-btn" data-pattern="toad">Toad</button>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Games:</span>
-                        <span class="stat-value" id="gamesPlayed">0</span>
+                    <canvas id="targetCanvas" class="mini-canvas"></canvas>
+                </div>
+
+                <div class="panel-section">
+                    <h3>🤖 AI Training</h3>
+                    <div class="training-controls">
+                        <button class="control-btn" id="trainBtn">
+                            <span class="btn-icon">🎓</span>
+                            Start Training
+                        </button>
+                        <button class="control-btn" id="stopBtn" disabled>
+                            <span class="btn-icon">⏸️</span>
+                            Stop Training
+                        </button>
+                        <button class="control-btn" id="resetBtn">
+                            <span class="btn-icon">🔄</span>
+                            Reset Grid
+                        </button>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Episode:</span>
+                            <span class="stat-value" id="episode">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Steps:</span>
+                            <span class="stat-value" id="steps">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Reward:</span>
+                            <span class="stat-value" id="reward">0.0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Similarity:</span>
+                            <span class="stat-value" id="similarity">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Epsilon:</span>
+                            <span class="stat-value" id="epsilon">1.0</span>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <h4>Training Progress</h4>
+                        <canvas id="rewardChart" class="chart-canvas"></canvas>
                     </div>
                 </div>
-                <button class="back-btn" id="backBtn">← Back to Portfolio</button>
+
+                <div class="panel-section">
+                    <h3>⚙️ Settings</h3>
+                    <div class="settings">
+                        <label>
+                            Grid Size: <span id="gridSizeValue">20</span>
+                            <input type="range" id="gridSize" min="10" max="30" value="20" step="5">
+                        </label>
+                        <label>
+                            Learning Rate: <span id="learningRateValue">0.001</span>
+                            <input type="range" id="learningRate" min="0.0001" max="0.01" value="0.001" step="0.0001">
+                        </label>
+                        <label>
+                            Max Steps/Episode: <span id="maxStepsValue">50</span>
+                            <input type="range" id="maxSteps" min="20" max="100" value="50" step="10">
+                        </label>
+                        <label>
+                            <input type="checkbox" id="autoEvolve" checked>
+                            Auto-evolve grid after action
+                        </label>
+                    </div>
+                </div>
             </div>
 
-            <div class="controls-info" id="controlsInfo">
-                <div class="control-item">
-                    <span class="key">←</span>
-                    <span class="key">→</span>
-                    <span class="label">Move</span>
+            <!-- Game Grid -->
+            <div class="game-area">
+                <div class="canvas-container">
+                    <h3>Current Grid</h3>
+                    <canvas id="gameCanvas"></canvas>
+                    <div class="grid-info">
+                        <p>Click cells to manually toggle • AI will learn to create target pattern</p>
+                    </div>
                 </div>
-                <div class="control-item">
-                    <span class="key">SPACE</span>
-                    <span class="label">Jump</span>
-                </div>
-            </div>
-
-            <div class="game-over-screen" id="gameOverScreen">
-                <h2>Game Over!</h2>
-                <div class="final-score">Score: <span id="finalScore">0</span></div>
-                <button class="restart-btn" id="restartBtn">Play Again</button>
             </div>
         </div>
-
-        <!-- AI Control Panel -->
-        <div class="ai-panel">
-            <button class="ai-toggle" id="aiToggle">
-                <span class="ai-icon">🤖</span>
-                <span class="ai-text">AI: OFF</span>
-            </button>
-            <div class="training-info" id="trainingInfo">
-                <div class="training-status">Training Data: <span id="trainingSize">0</span> samples</div>
-                <div class="training-status">Model Status: <span id="modelStatus">Not Trained</span></div>
-            </div>
-        </div>
-
-        <!-- 3D Canvas -->
-        <canvas id="gameCanvas"></canvas>
     </div>
 
-    <!-- Three.js and TensorFlow.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.2.0/dist/tf.min.js"></script>
     <script src="game-script.js"></script>
 </body>
