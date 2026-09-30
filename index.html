@@ -3,305 +3,166 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>AudoAck AI — Speak It. Build It. Run It.</title>
-  <meta name="description" content="AudoAck AI is a voice-first AI agent builder. Describe what you need by voice, build an agent, and use it from your mobile app.">
-  <meta name="theme-color" content="#050505">
-  <meta property="og:title" content="AudoAck AI — Speak It. Build It. Run It.">
-  <meta property="og:description" content="Build AI agents by talking to them.">
-  <meta property="og:type" content="website">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>AudoAck AI — Voice → Agents</title>
+  <meta name="description" content="AudoAck AI turns your voice into AI agents and lets you use those agents by voice.">
+  <link rel="icon" type="image/png" href="assets/icon/audoack.png">
+  <link rel="apple-touch-icon" href="assets/icon/audoack.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="cursor-glow" aria-hidden="true"></div>
-  <div class="noise" aria-hidden="true"></div>
-
-  <header class="site-header">
-    <div class="container nav">
-      <a class="brand" href="#" aria-label="AudoAck AI home">
-        <span class="brand-mark">A</span>
-        <span>AudoAck <em>AI</em></span>
-      </a>
-
-      <nav class="nav-links" aria-label="Main navigation">
-        <a href="#how">How it works</a>
-        <a href="#experience">Experience</a>
-        <a href="#usecases">Use cases</a>
-        <a href="#waitlist">Waitlist</a>
-      </nav>
-
-      <a class="nav-cta magnetic" href="https://docs.google.com/forms/d/e/1FAIpQLSd1d9hAi1KjTpt-MQ4KEjZPblUH9iHW4iEU3v-8dQCD-aS9Tw/viewform?usp=publish-editor" target="_blank" rel="noreferrer">
-        Join early access <span>↗</span>
-      </a>
-    </div>
+  <header class="nav">
+    <a class="logo" href="#">
+      <img src="assets/icon/audoack.png" alt="AudoAck AI">
+      <span>AudoAck <b>AI</b></span>
+    </a>
+    <a class="waitlist-link" href="#waitlist">Join waitlist →</a>
   </header>
 
   <main>
     <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-copy reveal">
-          <div class="kicker">
-            <span class="status-dot"></span>
-            <span>voice-first AI agent builder</span>
-          </div>
-
-          <h1>Speak it.<br><span>Build it.</span><br>Run it.</h1>
-
-          <p class="hero-lede">
-            AudoAck turns a plain-language voice idea into an AI agent you can actually use.
-            Describe the job. Shape the behavior. Then talk to your agent from your phone.
-          </p>
-
-          <div class="hero-actions">
-            <a class="button button-primary magnetic" href="https://docs.google.com/forms/d/e/1FAIpQLSd1d9hAi1KjTpt-MQ4KEjZPblUH9iHW4iEU3v-8dQCD-aS9Tw/viewform?usp=publish-editor" target="_blank" rel="noreferrer">
-              Build with AudoAck <span>↗</span>
-            </a>
-            <a class="button button-secondary magnetic" href="https://play.google.com/store/apps/details?id=in.audoack.app&hl=en_IN" target="_blank" rel="noreferrer">
-              Get the Android app
-            </a>
-          </div>
-
-          <p class="micro-note">No dashboard to learn first. Start with your voice.</p>
-        </div>
-
-        <div class="hero-visual reveal">
-          <div class="energy energy-a"></div>
-          <div class="energy energy-b"></div>
-          <div class="orbit orbit-one"></div>
-          <div class="orbit orbit-two"></div>
-          <div class="orbit orbit-three"></div>
-
-          <div class="ai-core">
-            <div class="core-inner"></div>
-            <span class="core-label">A</span>
-          </div>
-
-          <div class="float-card card-one">
-            <strong>“Create an agent…”</strong>
-            <span>Natural language → agent intent</span>
-          </div>
-
-          <div class="float-card card-two">
-            <strong>Agent ready</strong>
-            <span>Tools, rules & behaviour shaped from conversation.</span>
-          </div>
-
-          <div class="float-card card-three">
-            <strong>Voice input</strong>
-            <span>Speak naturally. No prompt engineering ceremony.</span>
-          </div>
-
-          <div class="float-card card-four">
-            <strong>Mobile-native</strong>
-            <span>Your agent travels with you.</span>
-          </div>
+      <div class="hero-copy">
+        <div class="eyebrow">VOICE-FIRST AI AGENTS</div>
+        <h1>Speak once.<br><span>Build an agent.</span></h1>
+        <p>
+          Tell AudoAck what you want in your own words.
+          Your voice becomes an AI agent you can run again — simply by talking.
+        </p>
+        <div class="actions">
+          <a class="btn orange" href="#waitlist">Build with your voice →</a>
+          <a class="btn white" href="https://play.google.com/store/apps/details?id=in.audoack.app&hl=en_IN" target="_blank" rel="noreferrer">Get the app</a>
         </div>
       </div>
     </section>
 
-    <section class="marquee-section" aria-label="AudoAck capabilities">
-      <div class="marquee-track">
-        <span>VOICE FIRST</span><i>✦</i>
-        <span>AI AGENTS</span><i>✦</i>
-        <span>NO-CODE BUILDING</span><i>✦</i>
-        <span>MOBILE NATIVE</span><i>✦</i>
-        <span>VOICE FIRST</span><i>✦</i>
-        <span>AI AGENTS</span><i>✦</i>
-        <span>NO-CODE BUILDING</span><i>✦</i>
-        <span>MOBILE NATIVE</span><i>✦</i>
-      </div>
-    </section>
-
-    <section id="how" class="section">
-      <div class="container">
-        <div class="section-head reveal">
-          <div>
-            <div class="eyebrow">01 / THE LOOP</div>
-            <h2>From thought to agent<br>without the friction.</h2>
-          </div>
-          <p>
-            You do the explaining. AudoAck handles the translation from human intent
-            into an agent workflow.
-          </p>
-        </div>
-
-        <div class="steps">
-          <article class="step tilt reveal">
-            <span class="step-number">01 — DESCRIBE</span>
-            <div class="step-icon">◉</div>
-            <h3>Tell it what to do.</h3>
-            <p>
-              Explain the outcome in everyday language. Say the task, context, tone
-              and edge cases — just like you would to a teammate.
-            </p>
-          </article>
-
-          <article class="step tilt reveal">
-            <span class="step-number">02 — SHAPE</span>
-            <div class="step-icon">⌁</div>
-            <h3>Refine by talking.</h3>
-            <p>
-              Adjust the agent through conversation. Clarify constraints, change
-              behaviour and keep iterating without rebuilding a flow by hand.
-            </p>
-          </article>
-
-          <article class="step tilt reveal">
-            <span class="step-number">03 — RUN</span>
-            <div class="step-icon">→</div>
-            <h3>Use your agent.</h3>
-            <p>
-              Take the agent into the AudoAck mobile experience and interact with it
-              through voice wherever the work happens.
-            </p>
-          </article>
+    <!-- SCREEN 01 -->
+    <section class="demo-section">
+      <div class="demo-intro">
+        <span>01</span>
+        <div>
+          <div class="eyebrow">VOICE → AGENT</div>
+          <h2>Describe it.<br>We build it.</h2>
+          <p>Talk naturally. AudoAck turns the conversation into a usable agent — like creating a workflow in n8n or Zapier, without starting from a canvas.</p>
         </div>
       </div>
-    </section>
 
-    <section id="experience" class="section experience">
-      <div class="container">
-        <div class="section-head reveal">
-          <div>
-            <div class="eyebrow">02 / PRODUCT FEEL</div>
-            <h2>The interface<br>gets out of the way.</h2>
+      <div class="demo-stage build-stage">
+        <div class="stage-glow"></div>
+
+        <div class="voice-card">
+          <div class="card-top">
+            <span class="live"><i></i> LISTENING</span>
+            <span>00:08</span>
           </div>
-          <p>
-            Dark space, strong typography, luminous signals and a clear voice
-            interaction loop.
-          </p>
+          <div class="quote">“Create an agent that reads a new lead, qualifies them, and sends me a concise summary.”</div>
+          <div class="voice-wave" data-wave="build"></div>
         </div>
 
-        <div class="experience-grid">
-          <div class="phone-panel panel reveal">
-            <div class="phone-shell">
-              <div class="phone-notch"></div>
-              <div class="phone-header">
-                <span>AudoAck</span>
-                <span class="live-pill">LIVE</span>
-              </div>
+        <div class="conversion">
+          <div class="voice-orb"><span>●</span></div>
+          <div class="conversion-line"></div>
+          <div class="conversion-label">UNDERSTANDING INTENT</div>
+        </div>
 
-              <div class="phone-agent">Agent / customer follow-up</div>
-
-              <div class="conversation">
-                <div class="bubble bubble-ai">What should I do with a new lead?</div>
-                <div class="bubble bubble-user">Qualify them, ask about timeline and budget, then summarize the next step.</div>
-                <div class="bubble bubble-ai">Got it. I’ll handle the conversation and give you a concise handoff.</div>
-              </div>
-
-              <div class="voice-bar">
-                <div class="mic-button">●</div>
-                <span>tap to speak</span>
-                <div class="wave">
-                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                </div>
-              </div>
+        <div class="agent-card">
+          <div class="agent-head">
+            <div class="agent-icon">A</div>
+            <div>
+              <strong>Lead Concierge</strong>
+              <small>AI agent · active</small>
             </div>
+            <span class="spark">✦</span>
           </div>
+          <div class="agent-flow">
+            <div class="node"><b>01</b><span>Receive lead</span></div>
+            <div class="flow-line"></div>
+            <div class="node"><b>02</b><span>Qualify</span></div>
+            <div class="flow-line"></div>
+            <div class="node"><b>03</b><span>Summarize</span></div>
+          </div>
+          <div class="agent-footer">
+            <span>Ready to run</span>
+            <span class="green-dot"></span>
+          </div>
+        </div>
 
-          <div class="builder-panel panel reveal">
-            <div class="eyebrow">AGENT BLUEPRINT / CONVERSATION</div>
-            <h3>Build the behaviour,<br>not the plumbing.</h3>
-            <p>
-              AudoAck is designed around a simple idea: the fastest way to tell an AI
-              what you want is to talk about what you want.
-            </p>
+        <div class="tool-chip chip-n8n">n8n-style workflow</div>
+        <div class="tool-chip chip-zapier">Zapier-style automation</div>
+      </div>
+    </section>
 
-            <div class="terminal">
-              <div class="terminal-bar">
-                <span></span><span></span><span></span>
-              </div>
-              <pre><code><b>agent</b> = {
-  <em>"name"</em>: <strong>"Lead Concierge"</strong>,
-  <em>"input"</em>: <strong>"voice"</strong>,
-  <em>"goal"</em>: <strong>"qualify + summarize"</strong>,
-  <em>"style"</em>: <strong>"clear, concise"</strong>,
-  <em>"handoff"</em>: <strong>"next best action"</strong>
-}</code></pre>
-            </div>
+    <!-- SCREEN 02 -->
+    <section class="demo-section run-section">
+      <div class="demo-intro">
+        <span>02</span>
+        <div>
+          <div class="eyebrow">VOICE → AGENT → ACTION</div>
+          <h2>Then just<br>talk to it.</h2>
+          <p>Your agents become voice interfaces. Ask for the outcome, and the agent handles the workflow behind the scenes.</p>
+        </div>
+      </div>
+
+      <div class="demo-stage run-stage">
+        <div class="stage-glow orange-glow"></div>
+
+        <div class="phone">
+          <div class="phone-speaker"></div>
+          <div class="phone-status">AudoAck <span>●</span></div>
+          <div class="phone-agent">
+            <small>AGENT</small>
+            <strong>Lead Concierge</strong>
+          </div>
+          <div class="phone-voice">
+            <div class="big-mic">●</div>
+            <div class="live-text">I'm listening…</div>
+            <div class="phone-wave"></div>
+          </div>
+          <div class="phone-message">“Follow up with the leads<br>from this morning.”</div>
+          <div class="phone-result">
+            <span>✓</span>
+            <div><b>3 follow-ups prepared</b><small>Agent completed the workflow</small></div>
+          </div>
+          <div class="phone-nav"><span class="active">Home</span><span>Agents</span><span>Activity</span></div>
+        </div>
+
+        <div class="action-stream">
+          <div class="stream-label">AGENT ACTIVITY</div>
+          <div class="stream-item active">
+            <span class="stream-icon">↗</span>
+            <div><b>Lead Concierge</b><small>Finding today's leads</small></div>
+            <em>done</em>
+          </div>
+          <div class="stream-item">
+            <span class="stream-icon">✉</span>
+            <div><b>Follow-up message</b><small>Preparing personalized replies</small></div>
+            <em>ready</em>
+          </div>
+          <div class="stream-item">
+            <span class="stream-icon">✓</span>
+            <div><b>Summary</b><small>3 actions completed</small></div>
+            <em>done</em>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="usecases" class="section">
-      <div class="container">
-        <div class="section-head reveal">
-          <div>
-            <div class="eyebrow">03 / POSSIBILITIES</div>
-            <h2>Agents that start<br>with a conversation.</h2>
-          </div>
-          <p>
-            Use the same voice-first building loop for customer operations,
-            research, field work and personal automation.
-          </p>
-        </div>
-
-        <div class="usecases">
-          <article class="usecase tilt reveal">
-            <span class="usecase-index">01</span>
-            <h3>Customer operations</h3>
-            <p>Qualify, collect context, answer recurring questions and hand work back to a person with the important details organized.</p>
-            <span class="tag">VOICE → WORKFLOW</span>
-          </article>
-
-          <article class="usecase tilt reveal">
-            <span class="usecase-index">02</span>
-            <h3>Personal copilots</h3>
-            <p>Shape a private helper around your routines. Turn messy spoken thoughts into context-aware next actions.</p>
-            <span class="tag">VOICE → ASSISTANT</span>
-          </article>
-
-          <article class="usecase tilt reveal">
-            <span class="usecase-index">03</span>
-            <h3>Field & mobile work</h3>
-            <p>Keep interactions hands-free when attention belongs elsewhere. Speak naturally instead of navigating layers of UI.</p>
-            <span class="tag">VOICE → ACTION</span>
-          </article>
-
-          <article class="usecase tilt reveal">
-            <span class="usecase-index">04</span>
-            <h3>Specialized agents</h3>
-            <p>Create focused agents around the exact language, rules and edge cases of a team.</p>
-            <span class="tag">VOICE → SPECIALIST</span>
-          </article>
-        </div>
-      </div>
+    <section class="minimal-section">
+      <div class="eyebrow">THE IDEA</div>
+      <h2>AI agents should feel<br>like <span>talking to a teammate.</span></h2>
+      <a class="btn orange" href="#waitlist">Get early access →</a>
     </section>
 
     <section id="waitlist" class="waitlist">
-      <div class="container">
-        <div class="wait-card reveal">
-          <div class="wait-orb"></div>
-          <div class="eyebrow">EARLY ACCESS / NEXT WAVE</div>
-          <h2>Your next AI agent<br>might start with one sentence.</h2>
-          <p>
-            Join the AudoAck AI waitlist for early access, product updates and the
-            chance to shape what a voice-first agent builder becomes.
-          </p>
-
-          <form class="wait-form" id="waitlistForm">
-            <label class="sr-only" for="email">Email address</label>
-            <input id="email" name="email" type="email" placeholder="you@company.com" autocomplete="email" required>
-            <button class="magnetic" type="submit">Join the waitlist <span>→</span></button>
-          </form>
-          <div class="form-status" id="formStatus" aria-live="polite"></div>
-        </div>
+      <div>
+        <div class="eyebrow">EARLY ACCESS</div>
+        <h2>Build your first<br>voice agent.</h2>
       </div>
+      <a class="btn orange large" href="https://docs.google.com/forms/d/e/1FAIpQLSd1d9hAi1KjTpt-MQ4KEjZPblUH9iHW4iEU3v-8dQCD-aS9Tw/viewform?usp=publish-editor" target="_blank" rel="noreferrer">Join the AudoAck waitlist →</a>
     </section>
   </main>
 
   <footer>
-    <div class="container footer-inner">
-      <span>© <span id="year"></span> AudoAck AI</span>
-      <div class="footer-links">
-        <a href="https://audoack.in/privacy/" target="_blank" rel="noreferrer">Privacy</a>
-        <a href="https://play.google.com/store/apps/details?id=in.audoack.app&hl=en_IN" target="_blank" rel="noreferrer">Android app</a>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSd1d9hAi1KjTpt-MQ4KEjZPblUH9iHW4iEU3v-8dQCD-aS9Tw/viewform?usp=publish-editor" target="_blank" rel="noreferrer">Waitlist</a>
-      </div>
-    </div>
+    <a class="logo" href="#"><img src="assets/icon/audoack.png" alt=""> <span>AudoAck <b>AI</b></span></a>
+    <span>© <span id="year"></span> AudoAck AI</span>
   </footer>
 
   <script src="script.js"></script>
