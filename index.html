@@ -1,426 +1,117 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO Meta Tags -->
-    <title>Gourav Tailor - Software Engineer | AI & Cloud Architecture Specialist</title>
-    <meta name="description" content="Gourav Tailor is a Software Engineer from IIT Bombay specializing in AI-native applications, backend development, and cloud infrastructure. 2+ years building scalable systems serving 60+ clients.">
-    <meta name="keywords" content="Gourav Tailor, Software Engineer, IIT Bombay, AI Developer, Backend Engineer, Cloud Architecture, FastAPI, Python, AWS, Machine Learning, Full Stack Developer">
-    <meta name="author" content="Gourav Tailor">
-    <meta name="robots" content="index, follow">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="Gourav Tailor - Software Engineer | AI & Cloud Specialist">
-    <meta property="og:description" content="Building scalable AI-native systems. 2+ years of experience in backend development, cloud infrastructure, and AI integration.">
-    <meta property="og:image" content="https://yourdomain.com/assets/profile.png">
-    <meta property="og:url" content="https://yourdomain.com">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Gourav Tailor Portfolio">
-    
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Gourav Tailor - Software Engineer">
-    <meta name="twitter:description" content="Building scalable AI-native systems. Specialized in backend architecture, cloud infrastructure, and AI integration.">
-    <meta name="twitter:image" content="https://yourdomain.com/assets/profile.png">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon.png">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://yourdomain.com">
-    
-    <!-- Preconnect for Performance -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://huggingface.co">
-    
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="styles.css">
-    
-    <!-- Schema.org Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Gourav Tailor",
-      "url": "https://yourdomain.com",
-      "image": "https://yourdomain.com/assets/profile.png",
-      "jobTitle": "Software Engineer",
-      "worksFor": {
-        "@type": "Organization",
-        "name": "SFDE Technologies"
-      },
-      "alumniOf": {
-        "@type": "EducationalOrganization",
-        "name": "Indian Institute of Technology Bombay"
-      },
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Jaipur",
-        "addressRegion": "Rajasthan",
-        "addressCountry": "India"
-      },
-      "email": "gourav.tailor.ai@gmail.com",
-      "sameAs": [
-        "https://github.com/Gourav-Tailor",
-        "https://www.linkedin.com/in/gourav-tailor-2461b117a/"
-      ],
-      "knowsAbout": ["Software Engineering", "Artificial Intelligence", "Cloud Computing", "Backend Development", "Python", "FastAPI", "AWS", "Machine Learning"],
-      "description": "Software Engineer specializing in AI-native applications, backend development, and cloud infrastructure with 2+ years of experience."
-    }
-    </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AudoAck AI — Speak it. Build it. Run it.</title>
+<meta name="description" content="AudoAck AI is a voice-first AI agent builder. Describe what you need by voice, shape the agent by conversation, and use it from your phone.">
+<meta name="theme-color" content="#050505">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <canvas class="game-of-life-canvas" id="gameOfLife"></canvas>
-    <div class="cursor-dot" id="cursorDot"></div>
-    <div class="cursor-outline" id="cursorOutline"></div>
+<div class="noise"></div>
+<div class="grid-bg"></div>
+<main class="wrap">
+<nav>
+  <a class="brand" href="#"><span class="logo">A</span><span>AudoAck <em>AI</em></span></a>
+  <div class="navlinks"><a href="#how">How it works</a><a href="#experience">Experience</a><a href="#usecases">Use cases</a><a href="#waitlist">Waitlist</a></div>
+  <a class="navcta" href="https://docs.google.com/forms/d/e/1FAIpQLSd1d9hAi1KjTpt-MQ4KEjZPblUH9iHW4iEU3v-8dQCD-aS9Tw/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer">Early access ↗</a>
+</nav>
 
-    <nav>
-        <div class="nav-container">
-            <div class="logo">GT</div>
-            <div class="nav-links">
-                <a href="#about">About</a>
-                <a href="#work">Work</a>
-                <a href="#skills">Skills</a>
-                <a href="#contact">Contact</a>
-                <a href="game.html">Game</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <section class="hero" id="about">
-            <div class="hero-grid">
-                <div class="hero-content">
-                    <div class="hero-tag">Software Engineer</div>
-                    <h1>Gourav Tailor</h1>
-                    <div class="hero-subtitle">Building AI-Native Systems</div>
-                    <p class="hero-description">
-                        Specialized in backend architecture, cloud infrastructure, and AI integration. 
-                        2+ years crafting scalable solutions that process 55K+ resumes, serve 60+ clients, 
-                        and reduce processing time by 60%.
-                    </p>
-                    <div class="btn-group">
-                        <a href="https://github.com/Gourav-Tailor" class="btn btn-primary">
-                            <span>View GitHub</span>
-                            <span>→</span>
-                        </a>
-                        <a href="mailto:gourav.tailor.ai@gmail.com" class="btn btn-secondary">Get in Touch</a>
-                    </div>
-                </div>
-                
-                <div class="hero-image-container">
-                    <div class="hero-image-wrapper">
-                        <img src="assets/profile.png" alt="Gourav Tailor - Software Engineer" class="hero-image" loading="lazy">
-                    </div>
-                </div>
-            </div>
-            <div class="scroll-indicator"></div>
-        </section>
-
-        <div class="stats-grid reveal">
-            <div class="stat-item">
-                <div class="stat-number">2+</div>
-                <div class="stat-label">Years Experience</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">55K</div>
-                <div class="stat-label">Resumes Processed</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">60+</div>
-                <div class="stat-label">Clients Served</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number">60%</div>
-                <div class="stat-label">Time Reduced</div>
-            </div>
-        </div>
-
-        <div class="terminal-section reveal">
-            <div class="terminal">
-                <div class="terminal-header">
-                    <span class="terminal-dot dot-red"></span>
-                    <span class="terminal-dot dot-yellow"></span>
-                    <span class="terminal-dot dot-green"></span>
-                    <span class="terminal-title">developer_mindset.py</span>
-                </div>
-                <div class="terminal-body">
-                    <div class="code-line">
-                        <span class="comment"># Think harder...</span>
-                    </div>
-                    <div class="code-line">
-                        <span class="keyword">while</span>(<span class="variable">curious</span>):
-                    </div>
-                    <div class="code-line">
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">question_everything</span>()
-                    </div>
-                    <div class="code-line">
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">dig_deeper</span>()
-                    </div>
-                    <div class="code-line">
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">connect_dots</span>(<span class="variable">unexpected</span>)
-                    </div>
-                    <div class="code-line"><br></div>
-                    <div class="code-line">
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (<span class="variable">stuck</span>):
-                    </div>
-                    <div class="code-line typing-cursor">
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">keep_thinking</span>()
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <section class="section" id="work">
-            <div class="section-header reveal">
-                <div class="section-tag">Portfolio</div>
-                <h2 class="section-title">Featured Work</h2>
-                <p class="section-description">
-                    A collection of projects demonstrating expertise in AI, backend systems, and cloud architecture.
-                </p>
-            </div>
-            
-            <div class="projects-grid">
-                <div class="project-card reveal">
-                    <div class="project-icon">🏥</div>
-                    <div class="project-company">SFDE Technologies</div>
-                    <h3>AI Medical Report Processing</h3>
-                    <p>Built Docker-based FastAPI backend on AWS EC2, reducing PDF processing time from 25 minutes to under 10 minutes. Architected multi-tenant system with WhatsApp integration.</p>
-                    <div class="tech-stack">
-                        <span class="tech-badge">FastAPI</span>
-                        <span class="tech-badge">Docker</span>
-                        <span class="tech-badge">AWS EC2</span>
-                        <span class="tech-badge">MongoDB</span>
-                        <span class="tech-badge">Playwright</span>
-                    </div>
-                </div>
-
-                <div class="project-card reveal">
-                    <div class="project-icon">🧬</div>
-                    <div class="project-company">SFDE Technologies</div>
-                    <h3>Bio Age Calculator</h3>
-                    <p>Developed tool extracting 9 biomarkers from PDF reports via OCR, applying NHANES research coefficients to calculate biological age and health risk scores.</p>
-                    <div class="tech-stack">
-                        <span class="tech-badge">OCR</span>
-                        <span class="tech-badge">Python</span>
-                        <span class="tech-badge">PDF Parsing</span>
-                        <span class="tech-badge">ML</span>
-                    </div>
-                </div>
-
-                <div class="project-card reveal">
-                    <div class="project-icon">🤖</div>
-                    <div class="project-company">Discoveries Quintessential</div>
-                    <h3>AskHR - RAG System</h3>
-                    <p>Built RAG-powered system processing 55K candidate resumes on PostgreSQL, improving recruiter search accuracy by 35% and reducing screening time by 45%.</p>
-                    <div class="tech-stack">
-                        <span class="tech-badge">RAG</span>
-                        <span class="tech-badge">PostgreSQL</span>
-                        <span class="tech-badge">Vector DB</span>
-                        <span class="tech-badge">NLP</span>
-                    </div>
-                </div>
-
-                <div class="project-card reveal">
-                    <div class="project-icon">⚙️</div>
-                    <div class="project-company">Discoveries Quintessential</div>
-                    <h3>Talent Acquisition Platform</h3>
-                    <p>Designed n8n workflows automating recruitment for 60+ clients. Built React dashboards reducing task completion time by 30%.</p>
-                    <div class="tech-stack">
-                        <span class="tech-badge">n8n</span>
-                        <span class="tech-badge">React</span>
-                        <span class="tech-badge">Next.js</span>
-                        <span class="tech-badge">Tailwind</span>
-                    </div>
-                </div>
-
-                <div class="project-card reveal">
-                    <div class="project-icon">📚</div>
-                    <div class="project-company">Sunstone Eduversity</div>
-                    <h3>Full-Stack Training Program</h3>
-                    <p>Trained 300+ students across 6 colleges in full-stack development. Created 30+ assessments with 85% average grade achievement.</p>
-                    <div class="tech-stack">
-                        <span class="tech-badge">Teaching</span>
-                        <span class="tech-badge">DBMS</span>
-                        <span class="tech-badge">OOPS</span>
-                        <span class="tech-badge">Full-Stack</span>
-                    </div>
-                </div>
-
-                <div class="project-card reveal">
-                    <div class="project-icon">🚀</div>
-                    <div class="project-company">Zoomifier Corporation</div>
-                    <h3>SaaS Sales Module</h3>
-                    <p>Created REST APIs improving data exchange efficiency by 30%. Refactored Vue.js codebase reducing load time by 20%.</p>
-                    <div class="tech-stack">
-                        <span class="tech-badge">REST API</span>
-                        <span class="tech-badge">Vue.js</span>
-                        <span class="tech-badge">Node.js</span>
-                        <span class="tech-badge">Performance</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="skills">
-            <div class="section-header reveal">
-                <div class="section-tag">Expertise</div>
-                <h2 class="section-title">Technical Skills</h2>
-                <p class="section-description">
-                    Comprehensive toolkit for building modern, production-grade applications.
-                </p>
-            </div>
-            
-            <div class="skills-grid">
-                <div class="skill-category reveal">
-                    <h3>Programming Languages</h3>
-                    <div class="skill-items">
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python">
-                            Python
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript">
-                            JavaScript
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java">
-                            Java
-                        </span>
-                    </div>
-                </div>
-
-                <div class="skill-category reveal">
-                    <h3>Frameworks & Libraries</h3>
-                    <div class="skill-items">
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js">
-                            Node.js
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg" alt="FastAPI">
-                            FastAPI
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React">
-                            React
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg" alt="Next.js" style="filter: invert(1);">
-                            Next.js
-                        </span>
-                    </div>
-                </div>
-
-                <div class="skill-category reveal">
-                    <h3>Databases</h3>
-                    <div class="skill-items">
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="PostgreSQL">
-                            PostgreSQL
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" alt="MongoDB">
-                            MongoDB
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg" alt="Redis">
-                            Redis
-                        </span>
-                    </div>
-                </div>
-
-                <div class="skill-category reveal">
-                    <h3>Cloud & DevOps</h3>
-                    <div class="skill-items">
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS" style="filter: brightness(3);">
-                            AWS
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker">
-                            Docker
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git">
-                            Git
-                        </span>
-                        <span class="skill-item">
-                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" alt="Linux">
-                            Linux
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </section>
+<section class="hero">
+  <div class="copy reveal">
+    <div class="eyebrow"><span></span> voice-first AI agent builder</div>
+    <h1>Speak it.<br><b>Build it.</b><br>Run it.</h1>
+    <p class="lede">AudoAck turns a plain-language voice idea into an AI agent you can actually use. Describe the job. Shape the behaviour. Then talk to your agent from your phone.</p>
+    <div class="actions">
+      <a class="btn primary" href="#waitlist">Build with AudoAck <strong>↗</strong></a>
+      <a class="btn ghost" href="https://play.google.com/store/apps/details?id=in.audoack.app&hl=en_IN" target="_blank" rel="noopener noreferrer">Get the Android app</a>
     </div>
+    <div class="micro">No prompt-engineering ceremony. Start with your voice.</div>
+  </div>
+  <div class="orb-stage reveal">
+    <div class="ring ring-a"></div><div class="ring ring-b"></div>
+    <div class="orb"><div class="orb-core"></div></div>
+    <div class="signal s1"><strong>“Create an agent…”</strong><span>Human intent → agent intent</span></div>
+    <div class="signal s2"><strong>Agent ready</strong><span>Rules, tools & behaviour shaped from the conversation.</span></div>
+    <div class="signal s3"><strong>Voice input</strong><span>Speak naturally. Iterate by talking.</span></div>
+    <div class="signal s4"><strong>Mobile-native</strong><span>Your agent travels with you.</span></div>
+  </div>
+</section>
 
-    <footer id="contact">
-        <div class="container">
-            <div class="footer-content">
-                <h2 class="section-title reveal">Let's Work Together</h2>
-                <p class="section-description reveal" style="margin: 0 auto 40px; text-align: center;">
-                    Open to discussing new projects, creative ideas, and opportunities.
-                </p>
-                <div class="footer-links reveal">
-                    <a href="mailto:gourav.tailor.ai@gmail.com">
-                        <span>📧</span>
-                        Email
-                    </a>
-                    <a href="https://github.com/Gourav-Tailor">
-                        <span>💻</span>
-                        GitHub
-                    </a>
-                    <a href="https://www.linkedin.com/in/gourav-tailor-2461b117a/">
-                        <span>💼</span>
-                        LinkedIn
-                    </a>
-                </div>
-                <p class="footer-text">© 2026 Gourav Tailor · IIT Bombay · Built with passion</p>
-            </div>
-        </div>
-    </footer>
+<section id="how" class="section">
+  <header class="section-head reveal"><div><label>01 / THE LOOP</label><h2>From thought to agent<br>without the friction.</h2></div><p>You do the explaining. AudoAck handles the translation from human intent into agent behaviour, so the product starts where other builders end: with conversation.</p></header>
+  <div class="cards three">
+    <article class="card reveal"><label>01 — DESCRIBE</label><h3>Tell it what to do.</h3><p>Explain the outcome in everyday language. Say the task, context, tone and edge cases — like briefing a teammate.</p></article>
+    <article class="card reveal"><label>02 — SHAPE</label><h3>Refine by talking.</h3><p>Adjust behaviour through conversation. Clarify constraints, change the flow and keep iterating without rebuilding a maze of screens.</p></article>
+    <article class="card reveal"><label>03 — RUN</label><h3>Use your agent.</h3><p>Take the finished agent into the AudoAck mobile experience and interact through voice wherever the work happens.</p></article>
+  </div>
+</section>
 
-    <!-- Chat Widget -->
-    <div class="chat-widget">
-        <div class="chat-container" id="chatContainer">
-            <div class="chat-header">
-                <h3>💬 Chat with Gourav</h3>
-                <button class="chat-close" id="chatClose">×</button>
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="chat-message">
-                    <div class="message-avatar">🤖</div>
-                    <div class="message-content">
-                        Hi! I'm Gourav's AI assistant. Ask me anything about his experience, skills, or projects!
-                    </div>
-                </div>
-            </div>
-            <div class="chat-input-container">
-                <input 
-                    type="text" 
-                    class="chat-input" 
-                    id="chatInput" 
-                    placeholder="Ask me anything..."
-                    autocomplete="off"
-                />
-                <button class="chat-action-btn" id="voiceBtn" title="Voice input">
-                    📞
-                </button>
-                <button class="chat-action-btn" id="sendBtn" title="Send message">
-                    ➤
-                </button>
-            </div>
-        </div>
-        <button class="chat-button" id="chatButton">
-            <img src="assets/chatbot.png" alt="Chat" class="chat-button-icon">
-        </button>
-    </div>
+<section id="experience" class="section">
+  <header class="section-head reveal"><div><label>02 / PRODUCT FEEL</label><h2>The interface<br>gets out of the way.</h2></div><p>Dark space. Strong type. Luminous signals. One clear interaction loop designed around speaking instead of tapping through a dashboard.</p></header>
+  <div class="demo-grid">
+    <div class="phone-card reveal"><div class="phone"><div class="p-top"><span>AudoAck</span><span class="live">LIVE</span></div><div class="mono">Agent / lead concierge</div><div class="chat"><div class="bubble ai">What should I do with a new lead?</div><div class="bubble me">Qualify them, ask about timeline and budget, then summarize the next step.</div><div class="bubble ai">Got it. I’ll handle the conversation and give you a concise handoff.</div></div><div class="voice"><span class="mic">●</span><span class="mono">tap to speak</span></div></div></div>
+    <div class="blueprint reveal"><label>AGENT BLUEPRINT / CONVERSATION</label><h3>Build the behaviour,<br>not the plumbing.</h3><p>AudoAck is built around a simple idea: the fastest way to tell AI what you want is to talk about what you want. The conversation becomes the configuration layer.</p><div class="terminal"><div class="termbar"><i></i><i></i><i></i></div><pre><span class="a">agent</span> = {
+  <span class="c">"name"</span>: <span class="a">"Lead Concierge"</span>,
+  <span class="c">"input"</span>: <span class="a">"voice"</span>,
+  <span class="c">"goal"</span>: <span class="a">"qualify + summarize"</span>,
+  <span class="c">"style"</span>: <span class="a">"clear, concise"</span>,
+  <span class="c">"handoff"</span>: <span class="a">"next best action"</span>
+}</pre></div></div>
+  </div>
+</section>
 
-    <script src="script.js"></script>
+<section id="usecases" class="section">
+  <header class="section-head reveal"><div><label>03 / POSSIBILITIES</label><h2>Agents that start<br>with a conversation.</h2></div><p>The same voice-first building loop can shape internal workflows, customer operations, research tools, field assistants and personal automation.</p></header>
+  <div class="cards two">
+    <article class="usecase reveal"><h3>Customer operations</h3><p>Qualify, collect context, answer recurring questions and hand work back with the important details organized.</p><span>VOICE → WORKFLOW</span></article>
+    <article class="usecase reveal"><h3>Personal copilots</h3><p>Shape a helper around your routines: remember context, guide a process and turn messy thoughts into the next useful action.</p><span>VOICE → ASSISTANT</span></article>
+    <article class="usecase reveal"><h3>Field & mobile work</h3><p>Keep the interaction hands-free when attention belongs elsewhere. Speak naturally instead of navigating layers of UI.</p><span>VOICE → ACTION</span></article>
+    <article class="usecase reveal"><h3>Specialized agents</h3><p>Create focused agents around the exact language, rules and edge cases of a team instead of forcing every task into one generic assistant.</p><span>VOICE → SPECIALIST</span></article>
+  </div>
+</section>
+
+<section id="waitlist" class="waitlist">
+  <div class="wait-card reveal"><label>EARLY ACCESS / NEXT WAVE</label><h2>Your next AI agent might start with one sentence.</h2><p>Join the AudoAck AI waitlist for early access, product updates and a chance to shape a voice-first agent builder.</p>
+    <form class="waitform" onsubmit="return joinWaitlist(event)"><input id="email" type="email" required placeholder="you@company.com" aria-label="Email address"><button type="submit">Join the waitlist →</button></form><div id="status" class="micro"></div>
+  </div>
+</section>
+
+<footer><span>© <span id="year"></span> AudoAck AI</span><div><a href="https://audoack.in/privacy/" target="_blank" rel="noopener noreferrer">Privacy</a><a href="https://play.google.com/store/apps/details?id=in.audoack.app&hl=en_IN" target="_blank" rel="noopener noreferrer">Android app</a><a href="https://docs.google.com/forms/d/e/1FAIpQLSd1d9hAi1KjTpt-MQ4KEjZPblUH9iHW4iEU3v-8dQCD-aS9Tw/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer">Waitlist</a></div></footer>
+</main>
+<script src="script.js">
+const glow=document.createElement('div');
+glow.className='cursor-glow';
+document.body.appendChild(glow);
+let mx=innerWidth/2,my=innerHeight/2,gx=mx,gy=my;
+addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY});
+function glowLoop(){
+  gx+=(mx-gx)*.09; gy+=(my-gy)*.09;
+  glow.style.transform=`translate3d(${gx}px,${gy}px,0) translate(-50%,-50%)`;
+  requestAnimationFrame(glowLoop);
+}
+glowLoop();
+
+document.querySelectorAll('.step,.usecase').forEach(card=>{
+  card.addEventListener('pointermove',e=>{
+    const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    card.style.transform=`translateY(-8px) rotateX(${(-y*3).toFixed(2)}deg) rotateY(${(x*3).toFixed(2)}deg)`;
+  });
+  card.addEventListener('pointerleave',()=>card.style.transform='');
+});
+
+const heroArt=document.querySelector('.hero-art');
+if(heroArt){
+  heroArt.addEventListener('pointermove',e=>{
+    const r=heroArt.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+    heroArt.style.transform=`perspective(900px) rotateX(${(-y*2.5).toFixed(2)}deg) rotateY(${(x*2.5).toFixed(2)}deg)`;
+  });
+  heroArt.addEventListener('pointerleave',()=>heroArt.style.transform='');
+}
+
+</script>
 </body>
 </html>
