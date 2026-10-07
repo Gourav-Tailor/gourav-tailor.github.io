@@ -6,15 +6,70 @@
   <title>AudoAck AI — Voice → Agents</title>
   <meta name="description" content="AudoAck AI turns your voice into AI agents and lets you use those agents by voice.">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Screen 02 vehicle protection overrides -->
+  <style>
+    .car-protection{position:relative;width:100%;height:100%;padding:24px;color:#fff;z-index:2}
+    .car-topbar{position:relative;display:flex;justify-content:space-between;align-items:center;z-index:5}
+    .status-pill,.sensor-count{border:1px solid #3b3b3b;background:rgba(16,16,16,.82);border-radius:999px;padding:9px 12px;font-size:9px;font-weight:800;letter-spacing:.08em}
+    .status-pill{color:#9ee6b6}.status-pill i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#65d68b;margin-right:7px;box-shadow:0 0 12px rgba(101,214,139,.7);animation:pulse 1.6s infinite}
+    .sensor-count{color:#8a8a8a;letter-spacing:.04em}
+    .car-world{position:absolute;inset:72px 22px 170px;min-height:300px;display:grid;place-items:center}
+    .sound-ring{position:absolute;border:1px solid rgba(255,90,31,.18);border-radius:50%;animation:ringExpand 3.8s ease-out infinite}
+    .ring-1{width:300px;height:180px}.ring-2{width:420px;height:250px;animation-delay:1.2s}.ring-3{width:540px;height:320px;animation-delay:2.4s}
+    .car-shadow{position:absolute;width:360px;height:90px;border-radius:50%;background:rgba(0,0,0,.38);filter:blur(18px);transform:translateY(92px)}
+    .car-body{position:relative;width:470px;height:205px;border:1px solid #4b4b4b;border-radius:85px 85px 50px 50px;background:linear-gradient(180deg,#292929,#171717);box-shadow:0 28px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);transform:perspective(750px) rotateX(6deg)}
+    .car-body:before{content:"";position:absolute;inset:18px 31px 20px;border:1px solid #353535;border-radius:62px 62px 36px 36px}
+    .car-roof{position:absolute;width:220px;height:92px;left:125px;top:10px;border:1px solid #444;border-bottom:0;border-radius:90px 90px 18px 18px;background:linear-gradient(180deg,#202a30,#13191d)}
+    .car-window{position:absolute;top:27px;width:86px;height:58px;border:1px solid #45545a;background:linear-gradient(145deg,rgba(83,110,121,.45),rgba(8,12,14,.5));z-index:2}
+    .window-front{left:155px;border-radius:13px 6px 4px 10px}.window-rear{left:247px;border-radius:6px 13px 10px 4px}
+    .occupant{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:19px;height:19px;border-radius:50%;background:#efefef;box-shadow:0 15px 0 5px rgba(255,255,255,.09)}
+    .occupant:before{content:"";position:absolute;width:29px;height:21px;border-radius:15px 15px 5px 5px;background:#8a8a8a;top:20px;left:-5px}
+    .occupant.child{width:14px;height:14px;background:#ffb07d}.occupant.child:before{width:23px;height:16px;left:-5px;background:#7a7a7a;top:15px}
+    .car-sensor{position:absolute;width:12px;height:12px;border-radius:50%;background:#ff5a1f;border:2px solid #ffd0bf;box-shadow:0 0 0 7px rgba(255,90,31,.11),0 0 25px rgba(255,90,31,.55);z-index:4;animation:sensorPulse 1.8s infinite}
+    .sensor-front{right:28px;top:89px}.sensor-back{left:28px;top:89px;animation-delay:.45s}.sensor-left{left:118px;top:172px;animation-delay:.9s}.sensor-right{right:118px;top:172px;animation-delay:1.35s}
+    .car-light{position:absolute;width:25px;height:8px;border-radius:999px;z-index:4}.light-front{right:17px;top:84px;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.55)}.light-rear{left:17px;top:84px;background:#ff5a1f;box-shadow:0 0 18px rgba(255,90,31,.45)}
+    .wheel{position:absolute;width:59px;height:59px;bottom:-17px;border:8px solid #0d0d0d;background:#222;border-radius:50%;box-shadow:inset 0 0 0 3px #353535;z-index:5}.wheel-left{left:58px}.wheel-right{right:58px}
+    .threat{position:absolute;min-width:180px;display:flex;align-items:center;gap:9px;padding:11px 12px;border:1px solid rgba(255,106,64,.4);background:rgba(27,16,13,.9);border-radius:9px;z-index:6;box-shadow:0 14px 30px rgba(0,0,0,.25);animation:threatFloat 3s ease-in-out infinite}
+    .threat b{display:block;font-size:9px;letter-spacing:.08em;color:#ffb19a}.threat small{display:block;color:#8d8d8d;font-size:8px;margin-top:3px}.threat em{margin-left:auto;font-style:normal;color:#ff8f72;font-size:9px;font-weight:800}.threat-wave{color:#ff5a1f;font-weight:900;letter-spacing:-.12em}
+    .threat-front{left:3%;top:20%}.threat-rear{right:3%;bottom:14%;animation-delay:-1.3s}
+    .audio-beam{position:absolute;height:1px;width:170px;background:linear-gradient(90deg,transparent,#ff5a1f,transparent);opacity:.85;transform-origin:left center;animation:beam 2s ease-in-out infinite}
+    .beam-front{left:22%;top:38%;transform:rotate(8deg)}.beam-back{right:22%;top:62%;transform:rotate(178deg);animation-delay:.4s}.beam-left{left:30%;bottom:16%;transform:rotate(-36deg);animation-delay:.8s}.beam-right{right:30%;bottom:16%;transform:rotate(-144deg);animation-delay:1.2s}
+    .inside-tag,.outside-tag{position:absolute;z-index:7;display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:8px;background:rgba(12,12,12,.88);border:1px solid #333;box-shadow:0 12px 24px rgba(0,0,0,.22)}
+    .inside-tag{left:28%;top:6%}.outside-tag{right:18%;bottom:0}.inside-tag b,.outside-tag b{display:block;font-size:8px;letter-spacing:.12em}.inside-tag small,.outside-tag small{display:block;color:#777;font-size:8px;margin-top:2px}
+    .mini-dot{width:7px;height:7px;border-radius:50%}.mini-dot.safe{background:#69d28c;box-shadow:0 0 10px rgba(105,210,140,.6)}.mini-dot.warn{background:#ff5a1f;box-shadow:0 0 10px rgba(255,90,31,.6)}
+    .protection-panel{position:absolute;left:24px;right:24px;bottom:22px;padding:16px;border:1px solid #303030;background:rgba(19,19,19,.94);border-radius:12px;z-index:8}
+    .panel-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}.panel-kicker{display:block;color:#777;font-size:8px;font-weight:800;letter-spacing:.14em}.panel-heading strong{display:block;font-size:13px;margin-top:4px}.panel-live{font-size:8px;font-weight:900;color:#75d99b;letter-spacing:.12em}
+    .protection-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .context-card{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;padding:10px;border:1px solid #303030;border-radius:8px;background:#171717}
+    .context-icon{width:25px;height:25px;display:grid;place-items:center;border-radius:6px;background:#262626;color:#ffb29b;font-weight:900;font-size:11px}
+    .context-card b{display:block;font-size:9px}.context-card small{display:block;color:#777;font-size:7px;margin-top:3px;white-space:nowrap}.context-card>span{font-size:7px;font-weight:800;text-transform:uppercase}
+    .safe-card>span{color:#75d99b}.warn-card>span{color:#ff8f72}.agent-card-mini>span{color:#aaa}
+    @keyframes sensorPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 7px rgba(255,90,31,.11),0 0 25px rgba(255,90,31,.55)}50%{transform:scale(1.14);box-shadow:0 0 0 11px rgba(255,90,31,.04),0 0 34px rgba(255,90,31,.8)}}
+    @keyframes ringExpand{0%{transform:scale(.7);opacity:0}25%{opacity:1}100%{transform:scale(1.18);opacity:0}}
+    @keyframes beam{0%,100%{opacity:.12}50%{opacity:1}}
+    @keyframes threatFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    @media(max-width:850px){
+      .car-protection{padding:18px}.car-world{inset:66px 12px 195px}.car-body{width:390px;height:175px}.car-roof{width:190px;height:78px;left:100px}.window-front{left:128px}.window-rear{left:206px}
+      .sensor-front{right:22px;top:76px}.sensor-back{left:22px;top:76px}.sensor-left{left:95px;top:148px}.sensor-right{right:95px;top:148px}.wheel{width:53px;height:53px}.wheel-left{left:47px}.wheel-right{right:47px}
+      .threat{min-width:155px}.threat-front{left:0;top:18%}.threat-rear{right:0;bottom:10%}.protection-panel{left:18px;right:18px;bottom:18px}
+    }
+    @media(max-width:550px){
+      .car-protection{padding:14px}.car-topbar .sensor-count{display:none}.car-world{inset:62px 8px 195px}.car-body{width:300px;height:138px;border-radius:58px 58px 38px 38px}.car-body:before{inset:13px 22px 14px}
+      .car-roof{width:148px;height:62px;left:76px;top:7px}.car-window{top:18px;width:56px;height:42px}.window-front{left:90px}.window-rear{left:145px}
+      .occupant{width:14px;height:14px}.occupant:before{width:22px;height:15px;top:14px;left:-4px}.occupant.child{width:11px;height:11px}.occupant.child:before{width:18px;height:12px;top:11px;left:-4px}
+      .sensor-front{right:13px;top:60px}.sensor-back{left:13px;top:60px}.sensor-left{left:71px;top:117px}.sensor-right{right:71px;top:117px}.light-front{right:9px;top:56px}.light-rear{left:9px;top:56px}
+      .wheel{width:40px;height:40px;border-width:6px;bottom:-13px}.wheel-left{left:35px}.wheel-right{right:35px}.ring-1{width:220px;height:130px}.ring-2{width:320px;height:190px}.ring-3{display:none}
+      .threat{min-width:132px;padding:8px}.threat b{font-size:7px}.threat small{font-size:7px}.threat em{font-size:7px}.threat-wave{font-size:10px}.threat-front{left:-2%;top:15%}.threat-rear{right:-2%;bottom:7%}
+      .inside-tag{left:24%;top:2%}.outside-tag{right:7%;bottom:-3%}.protection-grid{grid-template-columns:1fr}.context-card small{white-space:normal}.protection-panel{padding:12px}
+      .run-stage{height:700px}
+    }
+  </style>
 </head>
 <body>
   <header class="nav">
-    <a class="logo" href="#">
-      <img src="assets/icon/audoack.png" alt="AudoAck AI">
-      <span>AudoAck <b>AI</b></span>
-    </a>
+    <a class="logo" href="#"><img src="assets/icon/audoack.png" alt="AudoAck AI"><span>AudoAck <b>AI</b></span></a>
     <a class="waitlist-link" href="#waitlist">Join waitlist →</a>
   </header>
 
@@ -23,10 +78,7 @@
       <div class="hero-copy">
         <div class="eyebrow">VOICE-FIRST AI AGENTS</div>
         <h1>Speak once.<br><span>Build an agent.</span></h1>
-        <p>
-          Tell AudoAck what you want in your own words.
-          Your voice becomes an AI agent you can run again — simply by talking.
-        </p>
+        <p>Tell AudoAck what you want in your own words. Your voice becomes an AI agent you can run again — simply by talking.</p>
         <div class="actions">
           <a class="btn orange" href="#waitlist">Build with your voice →</a>
           <a class="btn white" href="https://play.google.com/store/apps/details?id=in.audoack.app&hl=en_IN" target="_blank" rel="noreferrer">Get the app</a>
@@ -34,112 +86,65 @@
       </div>
     </section>
 
-    <!-- SCREEN 01 -->
     <section class="demo-section">
-      <div class="demo-intro">
-        <span>01</span>
-        <div>
-          <div class="eyebrow">VOICE → AGENT</div>
-          <h2>Describe it.<br>We build it.</h2>
-          <p>Talk naturally. AudoAck turns the conversation into a usable agent — like creating a workflow in n8n or Zapier, without starting from a canvas.</p>
-        </div>
-      </div>
-
+      <div class="demo-intro"><span>01</span><div><div class="eyebrow">VOICE → AGENT</div><h2>Describe it.<br>We build it.</h2><p>Talk naturally. AudoAck turns the conversation into a usable agent — like creating a workflow in n8n or Zapier, without starting from a canvas.</p></div></div>
       <div class="demo-stage build-stage">
         <div class="stage-glow"></div>
-
-        <div class="voice-card">
-          <div class="card-top">
-            <span class="live"><i></i> LISTENING</span>
-            <span>00:08</span>
-          </div>
-          <div class="quote">“Create an agent that reads a new lead, qualifies them, and sends me a concise summary.”</div>
-          <div class="voice-wave" data-wave="build"></div>
-        </div>
-
-        <div class="conversion">
-          <div class="voice-orb"><span>●</span></div>
-          <div class="conversion-line"></div>
-          <div class="conversion-label">UNDERSTANDING INTENT</div>
-        </div>
-
-        <div class="agent-card">
-          <div class="agent-head">
-            <div class="agent-icon">A</div>
-            <div>
-              <strong>Lead Concierge</strong>
-              <small>AI agent · active</small>
-            </div>
-            <span class="spark">✦</span>
-          </div>
-          <div class="agent-flow">
-            <div class="node"><b>01</b><span>Receive lead</span></div>
-            <div class="flow-line"></div>
-            <div class="node"><b>02</b><span>Qualify</span></div>
-            <div class="flow-line"></div>
-            <div class="node"><b>03</b><span>Summarize</span></div>
-          </div>
-          <div class="agent-footer">
-            <span>Ready to run</span>
-            <span class="green-dot"></span>
-          </div>
-        </div>
-
-        <div class="tool-chip chip-n8n">n8n-style workflow</div>
-        <div class="tool-chip chip-zapier">Zapier-style automation</div>
+        <div class="voice-card"><div class="card-top"><span class="live"><i></i> LISTENING</span><span>00:08</span></div><div class="quote">“Create an agent that reads a new lead, qualifies them, and sends me a concise summary.”</div><div class="voice-wave" data-wave="build"></div></div>
+        <div class="conversion"><div class="voice-orb"><span>●</span></div><div class="conversion-line"></div><div class="conversion-label">UNDERSTANDING INTENT</div></div>
+        <div class="agent-card"><div class="agent-head"><div class="agent-icon">A</div><div><strong>Lead Concierge</strong><small>AI agent · active</small></div><span class="spark">✦</span></div><div class="agent-flow"><div class="node"><b>01</b><span>Receive lead</span></div><div class="flow-line"></div><div class="node"><b>02</b><span>Qualify</span></div><div class="flow-line"></div><div class="node"><b>03</b><span>Summarize</span></div></div><div class="agent-footer"><span>Ready to run</span><span class="green-dot"></span></div></div>
+        <div class="tool-chip chip-n8n">n8n-style workflow</div><div class="tool-chip chip-zapier">Zapier-style automation</div>
       </div>
     </section>
 
-    <!-- SCREEN 02 -->
     <section class="demo-section run-section">
       <div class="demo-intro">
         <span>02</span>
         <div>
-          <div class="eyebrow">VOICE → AGENT → ACTION</div>
-          <h2>Then just<br>talk to it.</h2>
-          <p>Your agents become voice interfaces. Ask for the outcome, and the agent handles the workflow behind the scenes.</p>
+          <div class="eyebrow">VOICE → AGENT → PROTECTION</div>
+          <h2>One agent.<br>Every sound.</h2>
+          <p>Create a voice agent once, then run it inside a car. AudoAck listens to the cabin and the world outside — separating people, voices and threats in real time.</p>
         </div>
       </div>
 
       <div class="demo-stage run-stage">
         <div class="stage-glow orange-glow"></div>
+        <div class="car-protection">
+          <div class="car-topbar">
+            <span class="status-pill"><i></i> AUDIO GUARD ACTIVE</span>
+            <span class="sensor-count">4 sensors · 16 kHz</span>
+          </div>
 
-        <div class="phone">
-          <div class="phone-speaker"></div>
-          <div class="phone-status">AudoAck <span>●</span></div>
-          <div class="phone-agent">
-            <small>AGENT</small>
-            <strong>Lead Concierge</strong>
-          </div>
-          <div class="phone-voice">
-            <div class="big-mic">●</div>
-            <div class="live-text">I'm listening…</div>
-            <div class="phone-wave"></div>
-          </div>
-          <div class="phone-message">“Follow up with the leads<br>from this morning.”</div>
-          <div class="phone-result">
-            <span>✓</span>
-            <div><b>3 follow-ups prepared</b><small>Agent completed the workflow</small></div>
-          </div>
-          <div class="phone-nav"><span class="active">Home</span><span>Agents</span><span>Activity</span></div>
-        </div>
+          <div class="car-world">
+            <div class="sound-ring ring-1"></div><div class="sound-ring ring-2"></div><div class="sound-ring ring-3"></div>
 
-        <div class="action-stream">
-          <div class="stream-label">AGENT ACTIVITY</div>
-          <div class="stream-item active">
-            <span class="stream-icon">↗</span>
-            <div><b>Lead Concierge</b><small>Finding today's leads</small></div>
-            <em>done</em>
+            <div class="threat threat-front"><span class="threat-wave">)))</span><div><b>HORN DETECTED</b><small>Front-left · 92 dB</small></div><em>2.4 m</em></div>
+            <div class="threat threat-rear"><span class="threat-wave">)))</span><div><b>VOICE DETECTED</b><small>Outside · unknown</small></div><em>6.8 m</em></div>
+
+            <div class="car-illustration" aria-label="Car with cabin and audio sensors">
+              <div class="car-shadow"></div>
+              <div class="car-body">
+                <div class="car-roof"></div>
+                <div class="car-window window-front"><span class="occupant driver"></span></div>
+                <div class="car-window window-rear"><span class="occupant child"></span></div>
+                <div class="car-sensor sensor-front"></div><div class="car-sensor sensor-back"></div><div class="car-sensor sensor-left"></div><div class="car-sensor sensor-right"></div>
+                <div class="car-light light-front"></div><div class="car-light light-rear"></div>
+                <div class="wheel wheel-left"></div><div class="wheel wheel-right"></div>
+              </div>
+              <div class="inside-tag cabin-tag"><span class="mini-dot safe"></span><div><b>INSIDE</b><small>Driver · Child</small></div></div>
+              <div class="outside-tag threat-tag"><span class="mini-dot warn"></span><div><b>OUTSIDE</b><small>Horn · human voice</small></div></div>
+            </div>
+
+            <div class="audio-beam beam-front"></div><div class="audio-beam beam-back"></div><div class="audio-beam beam-left"></div><div class="audio-beam beam-right"></div>
           </div>
-          <div class="stream-item">
-            <span class="stream-icon">✉</span>
-            <div><b>Follow-up message</b><small>Preparing personalized replies</small></div>
-            <em>ready</em>
-          </div>
-          <div class="stream-item">
-            <span class="stream-icon">✓</span>
-            <div><b>Summary</b><small>3 actions completed</small></div>
-            <em>done</em>
+
+          <div class="protection-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">LIVE AUDIO CONTEXT</span><strong>Cabin protected</strong></div><span class="panel-live">LIVE</span></div>
+            <div class="protection-grid">
+              <div class="context-card safe-card"><div class="context-icon">◎</div><div><b>Inside the cabin</b><small>Child + passenger voice</small></div><span>safe</span></div>
+              <div class="context-card warn-card"><div class="context-icon">!</div><div><b>Outside the car</b><small>Horn + unfamiliar sound</small></div><span>alert</span></div>
+              <div class="context-card agent-card-mini"><div class="context-icon">✦</div><div><b>AudoAck voice agent</b><small>Classifying · responding</small></div><span>active</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -151,23 +156,12 @@
       <a class="btn orange" href="#waitlist">Get early access →</a>
     </section>
 
-
     <section class="founder"><div class="founder-inner"><div class="founder-photo-wrap"><img src="assets/founder.png" alt="Gourav Tailor, Founder of AudoAck AI" class="founder-photo"></div><div class="founder-copy"><div class="eyebrow">FOUNDER / AUDOACK AI</div><h2>Built by <span>Gourav Tailor.</span></h2><p class="founder-role">IIT Bombay Alum · Founder, AudoAck AI</p><p>Building AudoAck around a simple belief: AI agents should be as easy to create and use as having a conversation.</p><div class="founder-links"><a href="mailto:gourav@audoack.in">gourav@audoack.in ↗</a><a href="https://www.linkedin.com/in/gourav-tailor-2461b117a" target="_blank" rel="noreferrer">LinkedIn ↗</a></div></div></div></section>
 
-    <section id="waitlist" class="waitlist">
-      <div>
-        <div class="eyebrow">EARLY ACCESS</div>
-        <h2>Build your first<br>voice agent.</h2>
-      </div>
-      <a class="btn orange large" href="https://docs.google.com/forms/d/e/1FAIpQLSd1d9hAi1KjTpt-MQ4KEjZPblUH9iHW4iEU3v-8dQCD-aS9Tw/viewform?usp=publish-editor" target="_blank" rel="noreferrer">Join the AudoAck waitlist →</a>
-    </section>
+    <section id="waitlist" class="waitlist"><div><div class="eyebrow">EARLY ACCESS</div><h2>Build your first<br>voice agent.</h2></div><a class="btn orange large" href="https://docs.google.com/forms/d/e/1FAIpQLSd1d9hAi1KjTpt-MQ4KEjZPblUH9iHW4iEU3v-8dQCD-aS9Tw/viewform?usp=publish-editor" target="_blank" rel="noreferrer">Join the AudoAck waitlist →</a></section>
   </main>
 
-  <footer>
-    <a class="logo" href="#"><img src="assets/icon/audoack.png" alt=""> <span>AudoAck <b>AI</b></span></a>
-    <span>© <span id="year"></span> AudoAck AI</span>
-  </footer>
-
+  <footer><a class="logo" href="#"><img src="assets/icon/audoack.png" alt=""> <span>AudoAck <b>AI</b></span></a><span>© <span id="year"></span> AudoAck AI</span></footer>
   <script src="script.js"></script>
 </body>
 </html>
