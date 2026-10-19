@@ -1,49 +1,45 @@
-(() => {
-  const year = document.getElementById("year");
-  if (year) year.textContent = new Date().getFullYear();
+// Typing effect
+const roles = ["Python Developer", "Backend Engineer", "Django & FastAPI Specialist", "AI Agent Builder"];
+const typedEl = document.getElementById("typed");
+let r = 0, c = 0, deleting = false;
+function type() {
+  const word = roles[r];
+  typedEl.textContent = word.slice(0, c);
+  if (!deleting && c < word.length) c++;
+  else if (deleting && c > 0) c--;
+  else if (!deleting) { deleting = true; return setTimeout(type, 1500); }
+  else { deleting = false; r = (r + 1) % roles.length; }
+  setTimeout(type, deleting ? 40 : 80);
+}
+type();
 
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduced) return;
+// Nav background on scroll
+const nav = document.getElementById("nav");
+window.addEventListener("scroll", () => nav.classList.toggle("scrolled", window.scrollY > 40));
 
-  // Subtle mouse depth on the two product screens.
-  document.querySelectorAll(".demo-stage").forEach(stage => {
-    stage.addEventListener("pointermove", e => {
-      const r = stage.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - .5;
-      const y = (e.clientY - r.top) / r.height - .5;
+// Mobile menu
+const menu = document.getElementById("menu");
+document.getElementById("menuBtn").addEventListener("click", () => menu.classList.toggle("open"));
+menu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => menu.classList.remove("open")));
 
-      const cards = stage.querySelectorAll(".voice-card,.agent-card,.phone");
-      cards.forEach((card, i) => {
-        const strength = i === 0 ? 5 : 3;
-        card.style.transform =
-          `translate3d(${x * strength}px, ${y * strength}px, 0)`;
-      });
-    });
+// Reveal on scroll
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
-    stage.addEventListener("pointerleave", () => {
-      stage.querySelectorAll(".voice-card,.agent-card,.phone").forEach(card => {
-        card.style.transform = "";
-      });
-    });
-  });
+// Count-up stats
+document.querySelectorAll("[data-count]").forEach(el => {
+  const target = +el.dataset.count;
+  let n = 0;
+  const step = Math.max(1, Math.ceil(target / 60));
+  const tick = () => { n = Math.min(target, n + step); el.textContent = n; if (n < target) requestAnimationFrame(tick); };
+  setTimeout(tick, 400);
+});
 
-  // Animate the conversion label between voice and agent.
-  const label = document.querySelector(".conversion-label");
-  const messages = ["UNDERSTANDING INTENT", "BUILDING AGENT", "CONNECTING ACTIONS"];
-  let index = 0;
+// Cursor glow
+const glow = document.getElementById("glow");
+window.addEventListener("mousemove", e => { glow.style.left = e.clientX + "px"; glow.style.top = e.clientY + "px"; });
 
-  if (label) {
-    setInterval(() => {
-      label.animate(
-        [
-          { opacity: 1, transform: "translateY(0)" },
-          { opacity: 0, transform: "translateY(-5px)" },
-          { opacity: 1, transform: "translateY(0)" }
-        ],
-        { duration: 650, easing: "ease-in-out" }
-      );
-      index = (index + 1) % messages.length;
-      setTimeout(() => { label.textContent = messages[index]; }, 300);
-    }, 2400);
-  }
-})();
+// Year
+document.getElementById("year").textContent = new Date().getFullYear();
