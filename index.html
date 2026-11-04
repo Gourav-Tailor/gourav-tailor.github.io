@@ -1,116 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gourav Tailor — Software Developer</title>
-  <meta name="description" content="Portfolio of Gourav Tailor, Software Developer specializing in Python, Django, FastAPI, React and scalable backend systems." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="AudoAck AI — acoustic intelligence, powered by Jarvis.">
+  <title>AudoAck AI | Jarvis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="cursor-glow" id="glow"></div>
-
-  <header class="nav" id="nav">
-    <a href="#home" class="logo">GT<span>.</span></a>
-    <nav>
-      <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
-      <ul id="menu">
-        <li><a href="#about">About</a></li>
-        <li><a href="#experience">Experience</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#skills">Skills</a></li>
-        <li><a href="#contact" class="nav-cta">Contact</a></li>
-      </ul>
-    </nav>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="AudoAck AI home">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span>AudoAck<span class="brand-ai"> AI</span></span>
+    </a>
+    <a class="top-link" href="https://audoack.in" target="_blank" rel="noopener">audoack.in <span aria-hidden="true">↗</span></a>
   </header>
 
-  <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow">VOICE-FIRST AI AGENTS</div>
-        <h1>Speak once.<br><span>Build an agent.</span></h1>
-        <p>Tell AudoAck what you want in your own words. Your voice becomes an AI agent you can run again — simply by talking.</p>
-        <div class="actions">
-          <a class="btn orange" href="#waitlist">Build with your voice →</a>
-          <a class="btn white" href="https://play.google.com/store/apps/details?id=in.audoack.app&hl=en_IN" target="_blank" rel="noreferrer">Get the app</a>
+  <main class="shell">
+    <section class="intro">
+      <div class="eyebrow"><span class="pulse"></span> ACOUSTIC INTELLIGENCE PLATFORM</div>
+      <h1>Meet <span>Jarvis.</span></h1>
+      <p class="lead">Your AudoAck AI assistant. Ask questions, explore insights, and interact with the platform below.</p>
+      <div class="trust-line"><span class="dot"></span> Live application <span class="separator">/</span> Securely hosted by Streamlit</div>
+    </section>
+
+    <section class="app-panel" aria-label="Jarvis application">
+      <div class="app-toolbar">
+        <div class="window-controls" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="app-label"><span class="status-dot"></span> JARVIS WORKSPACE</div>
+        <button class="fullscreen-btn" id="fullscreenBtn" type="button" title="Open app in a new tab">Open separately <span aria-hidden="true">↗</span></button>
+      </div>
+      <div class="frame-wrap" id="frameWrap">
+        <iframe
+          id="jarvisFrame"
+          src="https://jarvis-ji.streamlit.app/?embed=true"
+          title="AudoAck AI Jarvis application"
+          loading="eager"
+          allow="clipboard-read; clipboard-write"
+          referrerpolicy="strict-origin-when-cross-origin">
+        </iframe>
+        <div class="frame-fallback" id="frameFallback" hidden>
+          <p>The embedded app could not be displayed.</p>
+          <a href="https://jarvis-ji.streamlit.app/" target="_blank" rel="noopener">Launch Jarvis directly ↗</a>
         </div>
       </div>
     </section>
 
-    <section class="demo-section">
-      <div class="demo-intro"><span>01</span><div><div class="eyebrow">VOICE → AGENT</div><h2>Describe it.<br>We build it.</h2><p>Talk naturally. AudoAck turns the conversation into a usable agent — like creating a workflow in n8n or Zapier, without starting from a canvas.</p></div></div>
-      <div class="demo-stage build-stage">
-        <div class="stage-glow"></div>
-        <div class="voice-card"><div class="card-top"><span class="live"><i></i> LISTENING</span><span>00:08</span></div><div class="quote">“Create an agent that reads a new lead, qualifies them, and sends me a concise summary.”</div><div class="voice-wave" data-wave="build"></div></div>
-        <div class="conversion"><div class="voice-orb"><span>●</span></div><div class="conversion-line"></div><div class="conversion-label">UNDERSTANDING INTENT</div></div>
-        <div class="agent-card"><div class="agent-head"><div class="agent-icon">A</div><div><strong>Lead Concierge</strong><small>AI agent · active</small></div><span class="spark">✦</span></div><div class="agent-flow"><div class="node"><b>01</b><span>Receive lead</span></div><div class="flow-line"></div><div class="node"><b>02</b><span>Qualify</span></div><div class="flow-line"></div><div class="node"><b>03</b><span>Summarize</span></div></div><div class="agent-footer"><span>Ready to run</span><span class="green-dot"></span></div></div>
-        <div class="tool-chip chip-n8n">n8n-style workflow</div><div class="tool-chip chip-zapier">Zapier-style automation</div>
-      </div>
-    </section>
-
-    <section class="demo-section run-section">
-      <div class="demo-intro">
-        <span>02</span>
-        <div>
-          <div class="eyebrow">VOICE → AGENT → PROTECTION</div>
-          <h2>One agent.<br>Every sound.</h2>
-          <p>Create a voice agent once, then run it inside a car. AudoAck listens to the cabin and the world outside — separating people, voices and threats in real time.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="experience" class="reveal">
-      <h3 class="section-title"><span class="mono">02.</span> Experience</h3>
-      <div class="timeline">
-        <article class="card job">
-          <div class="job-head">
-            <div><h4>Python Developer</h4><p class="company">SRA OSS India · Hyderabad</p></div>
-            <span class="mono date">Apr 2026 – Aug 2026</span>
-          </div>
-          <ul>
-            <li>Built a scalable HRMS module in Django serving 100+ leave and comp-off requests monthly.</li>
-            <li>Implemented monthly report REST APIs aggregating 10K+ attendance records daily.</li>
-            <li>Led the CI/CD pipeline for test &amp; dev environments; reviewed and merged 150+ critical PRs.</li>
-            <li>Designed 12 business KPIs in an admin dashboard monitoring 1K+ daily active check-ins.</li>
-            <li>Planned roll-out for 10+ Android and iOS releases with stakeholders.</li>
-            <li>Migrated a legacy tenders-management project from PHP/Zend to Django.</li>
-          </ul>
-        </article>
-        <article class="card job">
-          <div class="job-head">
-            <div><h4>Software Developer</h4><p class="company">Discoveries Quintessential · Panaji, Goa</p></div>
-            <span class="mono date">Apr 2024 – Sep 2025</span>
-          </div>
-          <ul>
-            <li>Developed recruiter dashboard and candidate forms using Next.js.</li>
-            <li>Built HRMS microservices in Deno handling 2K+ hourly web requests.</li>
-            <li>Optimized PostgreSQL performance for 60+ client query workloads.</li>
-            <li>Engineered a document parser that screened 50K+ PDFs.</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <section id="contact" class="reveal contact">
-      <h3 class="section-title center"><span class="mono">05.</span> Let's build something</h3>
-      <p class="lead">Open to new opportunities and collaborations. My inbox is always open.</p>
-      <a href="mailto:gourav.tailor.ai@gmail.com" class="btn primary big">gourav.tailor.ai@gmail.com</a>
-      <p class="mono phone">📞 +91 7073727480</p>
-      <div class="socials">
-        <a href="https://github.com/Gourav-Tailor" target="_blank" rel="noopener">GitHub ↗</a>
-        <a href="https://www.linkedin.com/in/gourav-tailor-2461b117a" target="_blank" rel="noopener">LinkedIn ↗</a>
-        <a href="mailto:gourav.tailor.ai@gmail.com">gourav.tailor.ai@gmail.com</a>
-        <a href="mailto:gauravmanishtailor0@gmail.com">gauravmanishtailor0@gmail.com</a>
-      </div>
-    </section>
+    <footer>
+      <span>© <span id="year"></span> AudoAck AI</span>
+      <span>Powered by <a href="https://streamlit.io" target="_blank" rel="noopener">Streamlit</a></span>
+    </footer>
   </main>
-
-  <footer>
-    <p class="mono">© <span id="year"></span> Gourav Tailor · Built with care</p>
-  </footer>
-
-  <script src="script.js"></script>
 </body>
 </html>
